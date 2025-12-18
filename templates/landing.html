@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ t.get("app_title","Nimue") }} – {{ t.get("studio","AI Studio") }}</title>
+
+  <style>
+    :root{
+      --bg: linear-gradient(135deg, #ffe9d2, #fff7e6);
+      --card:#ffffff;
+      --text:#222;
+      --muted:#666;
+      --accent:#ff9b4a;
+      --shadow:0 18px 50px rgba(0,0,0,.10);
+      --radius:28px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .page{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:16px;}
+    .wrap{width:100%;max-width:1150px;}
+
+    /* HEADER (come pagina app, senza logo) */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      padding:10px 6px 14px;
+      flex-wrap:wrap;
+    }
+    .brand-text{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      text-align:left;
+    }
+    .brand-title{font-weight:950;font-size:1.15rem;line-height:1.05;}
+    .brand-studio{font-weight:950;letter-spacing:.14em;text-transform:uppercase;font-size:.82rem;}
+    .brand-tagline{color:var(--muted);font-size:.95rem;line-height:1.3;}
+
+    .tools{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:nowrap;
+    }
+    .lang{display:flex;align-items:center;gap:8px;}
+    .lang label{font-size:.88rem;color:rgba(0,0,0,.55);}
+    .lang select{padding:8px 12px;border-radius:999px;border:1px solid #ddd;background:#fff;font-size:.90rem;}
+
+    .badge{
+      padding:8px 14px;
+      border-radius:999px;
+      font-size:.85rem;
+      background:rgba(32,201,151,.12);
+      color:#0f7a5c;
+      font-weight:900;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      white-space:nowrap;
+    }
+    .badge .dot{width:8px;height:8px;border-radius:50%;background:#20c997;}
+
+    .hero{
+      background:rgba(255,255,255,.78);
+      border:1px solid #eee;
+      border-radius:38px;
+      box-shadow:var(--shadow);
+      padding:26px;
+    }
+    .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:center;}
+
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:10px;
+      padding:7px 14px;border-radius:999px;
+      border:1px solid rgba(0,0,0,.08);
+      background:rgba(255,255,255,.75);
+      font-weight:900;font-size:.82rem;
+    }
+    .eyebrow .dot{width:10px;height:10px;border-radius:50%;background:rgba(255,155,74,.65);}
+    h1{margin:12px 0 10px;font-size:2.25rem;line-height:1.05;letter-spacing:-0.03em;font-weight:950;}
+    .lead{margin:0 0 14px;color:var(--muted);font-size:1.05rem;line-height:1.55;max-width:60ch;}
+
+    .cta-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:10px;}
+    .cta{
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:12px 18px;border-radius:999px;
+      background:linear-gradient(135deg,var(--accent),#ff7a18);
+      color:#fff;font-weight:950;text-decoration:none;
+      box-shadow:0 10px 24px rgba(255,122,24,.28);
+    }
+    .cta-secondary{
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:12px 18px;border-radius:999px;
+      border:1px solid rgba(255,155,74,.45);
+      background:rgba(255,255,255,.85);
+      color:#b45717;font-weight:950;text-decoration:none;
+    }
+    .note{margin-top:10px;color:#777;font-size:.86rem;}
+
+    .card{background:var(--card);border:1px solid #eee;border-radius:var(--radius);padding:18px;}
+    .side{display:flex;flex-direction:column;gap:12px;}
+    .card h3{margin:0 0 10px;font-size:1.02rem;}
+    .kv{display:grid;gap:12px;}
+    .kv-item{display:flex;gap:12px;align-items:flex-start;}
+    .kv-ico{width:38px;height:38px;border-radius:14px;background:rgba(255,155,74,.14);display:flex;align-items:center;justify-content:center;}
+    .kv-text b{display:block;margin-bottom:3px;}
+    .kv-text span{color:var(--muted);font-size:.92rem;line-height:1.35;}
+
+    .sections{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+    .section-title{margin:0 0 10px;font-size:1.05rem;}
+    ul{margin:0;padding-left:18px;color:var(--muted);line-height:1.6;}
+    .box{border-radius:18px;background:rgba(255,155,74,.10);border:1px solid rgba(255,155,74,.25);padding:14px;color:#444;line-height:1.5;}
+
+    .bottom{margin-top:18px;text-align:center;padding:18px 12px;}
+    .bottom h3{margin:0 0 10px;font-size:1.18rem;}
+    .footer{margin-top:14px;padding-top:12px;border-top:1px solid rgba(0,0,0,.08);text-align:center;font-size:.82rem;color:#888;line-height:1.55;}
+
+    @media(max-width:900px){
+      .hero-grid{grid-template-columns:1fr}
+      .sections{grid-template-columns:1fr}
+      .tools{flex-wrap:wrap}
+    }
+    @media(max-width:520px){
+      h1{font-size:1.75rem}
+      .cta,.cta-secondary{width:100%}
+      .topbar{align-items:flex-start}
+      .tools{width:100%;justify-content:flex-start}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="wrap">
+
+      <!-- TOPBAR SENZA LOGO -->
+      <div class="topbar">
+        <div class="brand-text">
+          <div class="brand-title">{{ t.get("app_title","Nimue") }}</div>
+          <div class="brand-studio">{{ t.get("studio","AI Studio") }}</div>
+          <div class="brand-tagline">{{ t.get("tagline","") }}</div>
+        </div>
+
+        <div class="tools">
+          <div class="lang">
+            <label>{{ t.get("language","Lingua") }}</label>
+            <form method="GET" action="{{ url_for('landing') }}" style="margin:0">
+              <select name="lang" onchange="this.form.submit()">
+                <option value="it" {% if lang=="it" %}selected{% endif %}>🇮🇹 IT</option>
+                <option value="en" {% if lang=="en" %}selected{% endif %}>🇬🇧 EN</option>
+                <option value="es" {% if lang=="es" %}selected{% endif %}>🇪🇸 ES</option>
+                <option value="fr" {% if lang=="fr" %}selected{% endif %}>🇫🇷 FR</option>
+                <option value="de" {% if lang=="de" %}selected{% endif %}>🇩🇪 DE</option>
+              </select>
+            </form>
+          </div>
+
+          <div class="badge"><span class="dot"></span>{{ t.get("subtitle","Home Edition") }}</div>
+        </div>
+      </div>
+
+      <section class="hero">
+        <div class="hero-grid">
+          <div>
+            <div class="eyebrow"><span class="dot"></span>{{ t.get("landing_eyebrow","") }}</div>
+            <h1>{{ t.get("landing_h1","") }}</h1>
+            <p class="lead">{{ t.get("landing_p","") }}</p>
+
+            <div class="cta-row">
+              <a class="cta" href="{{ url_for('app_page', lang=lang) }}">{{ t.get("landing_cta_primary","") }}</a>
+              <a class="cta-secondary" href="#how">{{ t.get("landing_cta_secondary","") }}</a>
+            </div>
+
+            <div class="note">{{ t.get("landing_note","") }}</div>
+          </div>
+
+          <div class="side">
+            <div class="card" id="how">
+              <h3>{{ t.get("landing_for_who_title","") }}</h3>
+              <div class="kv">
+                <div class="kv-item">
+                  <div class="kv-ico">🍨</div>
+                  <div class="kv-text">
+                    <b>{{ t.get("landing_for_who_1_title","") }}</b>
+                    <span>{{ t.get("landing_for_who_1_desc","") }}</span>
+                  </div>
+                </div>
+                <div class="kv-item">
+                  <div class="kv-ico">📘</div>
+                  <div class="kv-text">
+                    <b>{{ t.get("landing_for_who_2_title","") }}</b>
+                    <span>{{ t.get("landing_for_who_2_desc","") }}</span>
+                  </div>
+                </div>
+                <div class="kv-item">
+                  <div class="kv-ico">🧪</div>
+                  <div class="kv-text">
+                    <b>{{ t.get("landing_for_who_3_title","") }}</b>
+                    <span>{{ t.get("landing_for_who_3_desc","") }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>{{ t.get("landing_get_title","") }}</h3>
+              <ul>
+                <li>{{ t.get("landing_get_1","") }}</li>
+                <li>{{ t.get("landing_get_2","") }}</li>
+                <li>{{ t.get("landing_get_3","") }}</li>
+                <li>{{ t.get("landing_get_4","") }}</li>
+                <li>{{ t.get("landing_get_5","") }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="sections">
+        <div class="card">
+          <h3 class="section-title">{{ t.get("landing_what_title","") }}</h3>
+          <ul>
+            <li>{{ t.get("landing_what_1","") }}</li>
+            <li>{{ t.get("landing_what_2","") }}</li>
+            <li>{{ t.get("landing_what_3","") }}</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 class="section-title">{{ t.get("landing_not_title","") }}</h3>
+          <div class="box">{{ t.get("landing_not_box","") }}</div>
+        </div>
+      </div>
+
+      <div class="bottom">
+        <h3>{{ t.get("landing_bottom_title","") }}</h3>
+        <div class="cta-row" style="justify-content:center;">
+          <a class="cta" href="{{ url_for('app_page', lang=lang) }}">{{ t.get("landing_cta_primary","") }}</a>
+        </div>
+      </div>
+
+      <div class="footer">
+        <strong>{{ t.get("footer_app_l1","") }}</strong><br>
+        {{ t.get("footer_app_l2","") }}<br>
+        {{ t.get("footer_app_l3","") }}
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

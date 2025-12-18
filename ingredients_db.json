@@ -1,0 +1,363 @@
+import json
+from pathlib import Path
+
+DB_PATH = Path("ingredients_db.json")
+
+
+# -----------------------------
+# CORE: Analyzer
+# -----------------------------
+class IngredientAnalyzer:
+    def __init__(self, db_path=DB_PATH):
+        self.ingredients = self._load_db(db_path)
+
+    def _load_db(self, path: Path):
+        if not path.exists():
+            raise FileNotFoundError(f"Database non trovato: {path.resolve()}")
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return {ing["id"]: ing for ing in data}
+
+    def analyze_recipe(self, recipe_items):
+        totals = {
+            "peso_totale": 0.0,
+            "acqua": 0.0,
+            "solidi": 0.0,
+            "zuccheri": 0.0,
+            "grassi": 0.0,
+            "proteine": 0.0,
+            "POD": 0.0,
+            "PAC": 0.0,
+        }
+
+        warnings = []
+
+        for item in recipe_items:
+            ing = self.ingredients.get(item["id"])
+            if not ing:
+                warnings.append(f"Ingrediente sconosciuto: {item['id']}")
+                continue
+
+            g = float(item["g"])
+            totals["peso_totale"] += g
+
+            totals["acqua"] += g * ing["acqua_pct"] / 100
+            totals["solidi"] += g * ing["solidi_totali_pct"] / 100
+            totals["zuccheri"] += g * ing["zuccheri_pct"] / 100
+            totals["grassi"] += g * ing["grassi_pct"] / 100
+            totals["proteine"] += g * ing["proteine_pct"] / 100
+
+            totals["POD"] += g * ing["POD"] / 100
+            totals["PAC"] += g * ing["PAC"] / 100
+
+            lim = ing.get("limiti_uso", {})
+            min_g = float(lim.get("min_g_kg", 0))
+            max_g = float(lim.get("max_g_kg", 1000))
+
+            if g < min_g:
+                warnings.append(f"{ing['nome']}: sotto minimo consigliato ({g:.1f}g < {min_g:.1f}g)")
+            if g > max_g:
+                warnings.append(f"{ing['nome']}: sopra massimo consigliato ({g:.1f}g > {max_g:.1f}g)")
+
+        if totals["peso_totale"] > 0:
+            totals["POD"] = round(totals["POD"] / totals["peso_totale"], 1)
+            totals["PAC"] = round(totals["PAC"] / totals["peso_totale"], 1)
+
+        return {
+            "totali": {k: round(v, 2) for k, v in totals.items()},
+            "warnings": warnings,
+        }
+
+
+# -----------------------------
+# CORE: Technical Evaluation (PRO ranges - crema standard v1)
+# -----------------------------
+class TechnicalEvaluator:
+    TARGETS = {
+        "acqua_pct": (60, 65),
+        "solidi_pct": (35, 40),
+        "zuccheri_pct": (16, 22),
+        "grassi_pct": (6, 10),
+        "POD": (170, 220),
+        "PAC": (230, 280),
+    }
+
+    @staticmethod
+    def evaluate(totals):
+        issues = []
+        peso = totals["peso_totale"]
+        if peso <= 0:
+            return ["Ricetta vuota o non valida."]
+
+        acqua_pct = totals["acqua"] / peso * 100
+        solidi_pct = totals["solidi"] / peso * 100
+        zuccheri_pct = totals["zuccheri"] / peso * 100
+        grassi_pct = totals["grassi"] / peso * 100
+
+        checks = {
+            "acqua_pct": acqua_pct,
+            "solidi_pct": solidi_pct,
+            "zuccheri_pct": zuccheri_pct,
+            "grassi_pct": grassi_pct,
+            "POD": totals["POD"],
+            "PAC": totals["PAC"],
+        }
+
+        for key, value in checks.items():
+            min_v, max_v = TechnicalEvaluator.TARGETS[key]
+            label = key.replace("_pct", " %").replace("_", " ").upper()
+
+            if value < min_v:
+                issues.append(f"{label} troppo basso ({value:.1f} < {min_v})")
+            elif value > max_v:
+                issues.append(f"{label} troppo alto ({value:.1f} > {max_v})")
+
+        return issues
+
+
+# -----------------------------
+# CORE: Corrective suggestions (non automatici)
+# -----------------------------
+class CorrectiveAdvisor:
+    @staticmethod
+    def suggest(issues):
+        suggestions = []
+
+        def add(text):
+            if text not in suggestions:
+                suggestions.append(text)
+
+        for issue in issues:
+            up = issue.upper()
+
+            if "PAC" in up and "TROPPO ALTO" in up:
+                add(
+                    "PAC elevato → rischio gelato troppo morbido in vetrina.\n"
+                    "- Ridurre destrosio (10–20%)\n"
+                    "- Oppure sostituire parzialmente con saccarosio\n"
+                    "- Ridurre zuccheri ad alto PAC (invertito/fruttosio se presenti)"
+                )
+
+            if "PAC" in up and "TROPPO BASSO" in up:
+                add(
+                    "PAC basso → rischio gelato duro e poco spatolabile.\n"
+                    "- Aumentare quota destrosio / invertito\n"
+                    "- Verificare temperatura di servizio e target vetrina"
+                )
+
+            if "ZUCCHERI" in up and "TROPPO ALTO" in up:
+                add(
+                    "Zuccheri elevati → dolcezza eccessiva e struttura più morbida.\n"
+                    "- Ridurre zuccheri ad alta dolcezza (fruttosio, invertito)\n"
+                    "- Se serve mantenere PAC, compensare con una quota di destrosio controllata"
+                )
+
+            if "ZUCCHERI" in up and "TROPPO BASSO" in up:
+                add(
+                    "Zuccheri insufficienti → rischio durezza e scarsa rotondità.\n"
+                    "- Aumentare zuccheri strutturali (saccarosio/destrosio in equilibrio)\n"
+                    "- Verificare PAC e temperatura di conservazione"
+                )
+
+            if "GRASSI" in up and "TROPPO BASSO" in up:
+                add(
+                    "Grassi bassi → corpo debole e minore spatolabilità.\n"
+                    "- Incrementare panna o materia grassa equivalente\n"
+                    "- Valutare anche i solidi del latte (SMP) per struttura"
+                )
+
+            if "GRASSI" in up and "TROPPO ALTO" in up:
+                add(
+                    "Grassi alti → rischio sensazione pesante e overrun difficile.\n"
+                    "- Ridurre panna\n"
+                    "- Bilanciare con latte/parte acquosa e controllare solidi"
+                )
+
+            if "SOLIDI" in up and "TROPPO BASSO" in up:
+                add(
+                    "Solidi bassi → gelato acquoso e poco strutturato.\n"
+                    "- Aumentare solidi del latte (SMP) / fibre\n"
+                    "- Controllare il rapporto acqua/zuccheri"
+                )
+
+            if "SOLIDI" in up and "TROPPO ALTO" in up:
+                add(
+                    "Solidi alti → gelato pastoso / gommoso.\n"
+                    "- Ridurre solidi non necessari\n"
+                    "- Verificare bilanciamento acqua e zuccheri"
+                )
+
+            if "ACQUA" in up and "TROPPO ALTA" in up:
+                add(
+                    "Acqua alta → rischio cristalli e struttura debole.\n"
+                    "- Aumentare solidi (SMP, zuccheri strutturali)\n"
+                    "- Valutare stabilizzante nel range corretto"
+                )
+
+            if "ACQUA" in up and "TROPPO BASSA" in up:
+                add(
+                    "Acqua bassa → miscela densa e possibile pastosità.\n"
+                    "- Verificare solidi totali e quota zuccheri\n"
+                    "- Ridurre solidi non strutturali se necessario"
+                )
+
+        return suggestions
+
+
+# -----------------------------
+# CLI Helpers
+# -----------------------------
+def print_header(title):
+    print("\n" + "=" * 70)
+    print(title)
+    print("=" * 70)
+
+
+def fmt_pct(x):
+    return f"{x:.1f}%"
+
+
+def recipe_percentages(totals):
+    peso = totals["peso_totale"]
+    if peso <= 0:
+        return {}
+    return {
+        "acqua_pct": (totals["acqua"] / peso * 100),
+        "solidi_pct": (totals["solidi"] / peso * 100),
+        "zuccheri_pct": (totals["zuccheri"] / peso * 100),
+        "grassi_pct": (totals["grassi"] / peso * 100),
+        "proteine_pct": (totals["proteine"] / peso * 100),
+    }
+
+
+def list_ingredients(db_map, filter_text=""):
+    items = list(db_map.values())
+    if filter_text:
+        ft = filter_text.lower().strip()
+        items = [x for x in items if ft in x["id"].lower() or ft in x["nome"].lower()]
+    items.sort(key=lambda x: (x.get("categoria", ""), x.get("nome", "")))
+
+    print_header("INGREDIENTI DISPONIBILI")
+    for ing in items:
+        print(f"- {ing['id']:<24} | {ing['nome']}  [{ing.get('categoria','')}]")
+    print()
+
+
+def print_recipe(recipe, db_map):
+    print_header("RICETTA CORRENTE")
+    if not recipe:
+        print("(vuota)\n")
+        return
+    for i, item in enumerate(recipe, 1):
+        ing = db_map.get(item["id"], {"nome": "??"})
+        print(f"{i:>2}. {item['id']:<24} {ing['nome']:<30} {item['g']:>7.1f} g")
+    print()
+
+
+def main():
+    analyzer = IngredientAnalyzer()
+    db = analyzer.ingredients
+
+    recipe = []
+
+    print_header("Assistente Ingredienti PRO - CLI (Alpha)")
+    print("Comandi rapidi: (L)ista ingredienti | (A)ggiungi | (R)imuovi | (C)ancella | (X)Analizza | (Q)Esci")
+
+    while True:
+        cmd = input("\n> Seleziona comando [L/A/R/C/X/Q]: ").strip().lower()
+
+        if cmd in ("q", "quit", "exit"):
+            print("\nUscita. A presto.\n")
+            break
+
+        elif cmd == "l":
+            ft = input("Filtro (invio per tutti): ").strip()
+            list_ingredients(db, ft)
+
+        elif cmd == "a":
+            print_recipe(recipe, db)
+            ing_id = input("ID ingrediente (es. latte_intero): ").strip()
+            if ing_id not in db:
+                print(f"❌ ID non valido: {ing_id}. Usa (L) per vedere la lista.")
+                continue
+            try:
+                g = float(input("Grammi: ").replace(",", "."))
+                if g <= 0:
+                    raise ValueError
+            except ValueError:
+                print("❌ Grammi non validi.")
+                continue
+
+            recipe.append({"id": ing_id, "g": g})
+            print("✅ Aggiunto.")
+            print_recipe(recipe, db)
+
+        elif cmd == "r":
+            print_recipe(recipe, db)
+            if not recipe:
+                continue
+            try:
+                idx = int(input("Numero riga da rimuovere: "))
+                if idx < 1 or idx > len(recipe):
+                    raise ValueError
+            except ValueError:
+                print("❌ Scelta non valida.")
+                continue
+            removed = recipe.pop(idx - 1)
+            print(f"✅ Rimosso: {removed['id']} ({removed['g']}g)")
+            print_recipe(recipe, db)
+
+        elif cmd == "c":
+            recipe.clear()
+            print("✅ Ricetta cancellata.")
+
+        elif cmd == "x":
+            print_recipe(recipe, db)
+            analysis = analyzer.analyze_recipe(recipe)
+            totals = analysis["totali"]
+            warnings = analysis["warnings"]
+
+            pct = recipe_percentages(totals)
+            issues = TechnicalEvaluator.evaluate(totals)
+            suggestions = CorrectiveAdvisor.suggest(issues)
+
+            print_header("RISULTATI ANALISI")
+            print(f"Peso totale: {totals['peso_totale']:.1f} g\n")
+
+            if pct:
+                print("Composizione (su totale):")
+                print(f"- Acqua:     {totals['acqua']:.1f} g  ({fmt_pct(pct['acqua_pct'])})")
+                print(f"- Solidi:    {totals['solidi']:.1f} g  ({fmt_pct(pct['solidi_pct'])})")
+                print(f"- Zuccheri:  {totals['zuccheri']:.1f} g  ({fmt_pct(pct['zuccheri_pct'])})")
+                print(f"- Grassi:    {totals['grassi']:.1f} g  ({fmt_pct(pct['grassi_pct'])})")
+                print(f"- Proteine:  {totals['proteine']:.1f} g  ({fmt_pct(pct['proteine_pct'])})")
+
+            print("\nIndici:")
+            print(f"- POD medio: {totals['POD']:.1f}")
+            print(f"- PAC medio: {totals['PAC']:.1f}")
+
+            if warnings:
+                print_header("⚠ AVVISI OPERATIVI")
+                for w in warnings:
+                    print("- " + w)
+
+            print_header("DIAGNOSI TECNICA (PRO)")
+            if issues:
+                for i in issues:
+                    print("- " + i)
+            else:
+                print("✅ Ricetta tecnicamente equilibrata per profilo: crema standard (v1)")
+
+            print_header("SUGGERIMENTI CORRETTIVI (PRO)")
+            if suggestions:
+                for s in suggestions:
+                    print("• " + s + "\n")
+            else:
+                print("Nessun suggerimento correttivo: parametri nei range target.")
+
+        else:
+            print("❌ Comando non riconosciuto. Usa L/A/R/C/X/Q.")
+
+
+if __name__ == "__main__":
+    main()
