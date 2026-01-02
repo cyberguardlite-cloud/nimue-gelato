@@ -1,8 +1,14 @@
 import os
 import re
+from dotenv import load_dotenv
 from openai import OpenAI
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# carica le variabili dal file .env
+load_dotenv()
+
+# usa automaticamente OPENAI_API_KEY dal .env
+client = OpenAI()
+
 
 SUPPORTED_LANGS = {"it", "en", "es", "fr", "de"}
 
@@ -226,6 +232,122 @@ def _user_prompt_localized(
         "Includi una tabella ingredienti in MARKDOWN con ESATTAMENTE 2 colonne.\n"
         "La seconda colonna deve essere in grammi (g)."
     )
+
+def get_substitutions(ingredient: str) -> list[str]:
+    """
+    Restituisce una lista di possibili sostituzioni per un ingrediente.
+    È una funzione semplice, basata su una mappa interna.
+    Puoi ampliarla quando vuoi.
+    """
+    if not ingredient:
+        return []
+
+    name = ingredient.lower().strip()
+
+    mapping = {
+        # LATTI / BEVANDE
+        "latte intero": [
+            "Bevanda di soia (stessa quantità, riduci leggermente lo zucchero)",
+            "Bevanda di mandorla non zuccherata",
+            "Bevanda di avena a basso contenuto di zuccheri"
+        ],
+        "latte": [
+            "Bevanda vegetale (soia/mandorla/avena) non zuccherata",
+            "Latte parzialmente scremato (gelato più leggero)"
+        ],
+        "panna fresca": [
+            "Panna vegetale per dolci (stessa quantità)",
+            "Latte intero + 20–30 g di burro per ogni 100 g di panna"
+        ],
+        "panna": [
+            "Panna vegetale per dolci",
+            "Latte intero + burro (per mantenere i grassi)"
+        ],
+
+        # ZUCCHERI
+        "zucchero semolato": [
+            "Zucchero di canna chiaro (stessa quantità, gusto più caramellato)",
+            "Miele (circa il 20% in meno rispetto allo zucchero)",
+            "Destrosio (aumenta leggermente la dose totale di zuccheri)"
+        ],
+        "zucchero": [
+            "Zucchero di canna chiaro",
+            "Miele (riduci del 20%)",
+            "Destrosio in parte al posto dello zucchero"
+        ],
+        "destrosio": [
+            "Zucchero semolato (aumenta leggermente la dose totale)",
+            "Maltodestrina (parte della quota di zuccheri)"
+        ],
+        "sciroppo di glucosio": [
+            "Zucchero + poca acqua (effetto meno anticongelante)",
+            "Miele chiaro (riducendo leggermente la quantità)"
+        ],
+
+        # GRASSI / UOVA
+        "tuorli": [
+            "Panna in più (circa 30–40 g di panna per tuorlo)",
+            "Latte in polvere + un po' di panna",
+            "Base neutra per gelato con emulsionanti"
+        ],
+        "uova": [
+            "Solo tuorli (senza albumi)",
+            "Panna + latte in polvere"
+        ],
+        "burro": [
+            "Panna (stessa quantità o poco di più)",
+            "Olio neutro di semi ad alto punto di fumo (dose ridotta)"
+        ],
+
+        # SOLIDI DEL LATTE
+        "latte in polvere": [
+            "Panna (aumentando leggermente i grassi)",
+            "Latte concentrato zuccherato (riducendo lo zucchero della ricetta)"
+        ],
+
+        # FRUTTA SECCA / GUSTI
+        "pistacchio": [
+            "Nocciole tostate (stessa quantità)",
+            "Mandorle pelate tostate",
+            "Mix pistacchio + nocciola per un gusto più morbido"
+        ],
+        "nocciola": [
+            "Mandorle tostate",
+            "Pistacchio",
+            "Pasta gianduia (riducendo lo zucchero)"
+        ],
+        "mandorla": [
+            "Nocciole tostate",
+            "Pistacchio",
+            "Farina di cocco (per un profilo diverso)"
+        ],
+        "cacao": [
+            "Cioccolato fondente fuso (aumentando i grassi e riducendo lo zucchero)",
+            "Cioccolato in polvere solubile (meno intenso)"
+        ],
+
+        # VARI
+        "miele": [
+            "Zucchero semolato (aumentando del 20%)",
+            "Sciroppo di glucosio",
+            "Sciroppo d'agave"
+        ],
+        "stabilizzante": [
+            "Farina di semi di carrube (dose molto piccola: 3–4 g/kg)",
+            "Inulina (parziale, per aumentare i solidi e la cremosità)"
+        ],
+    }
+
+    # Ricerca per chiave esatta o per parola contenuta nel nome
+    for key, subs in mapping.items():
+        if key == name or key in name:
+            return subs
+
+    # default: nessuna sostituzione specifica
+    return [
+        "Per questo ingrediente non sono disponibili sostituzioni specifiche.",
+        "Puoi provare a usare una versione con meno zuccheri o un equivalente vegetale, mantenendo il bilanciamento della ricetta."
+    ]
 
 
 def _looks_italian(text: str) -> bool:

@@ -1,7 +1,17 @@
-from flask import Flask, render_template, request, jsonify, send_file, session
-from gelato_engine import genera_ricetta_testo
+from flask import (
+    Flask,
+    render_template,
+    request,
+    jsonify,
+    send_file,
+    session,
+    redirect,
+    url_for,
+)
 import io
 import re
+
+from gelato_engine import genera_ricetta_testo, get_substitutions
 
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
@@ -9,20 +19,21 @@ from reportlab.platypus import Table, TableStyle
 from reportlab.lib import colors
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
+
 app = Flask(__name__)
-app.secret_key = "cambia_questa_chiave_con_una_tua"
+app.secret_key = "CAMBIA_QUESTA_CHIAVE_CON_UNA_TUA"  # metti una stringa lunga e casuale
 
 
+# ==========================
+#     TRADUZIONI / TESTI
+# ==========================
 TRANSLATIONS = {
     "it": {
-        # Brand / Header
         "app_title": "Nimue Gelato Artigianale",
         "subtitle": "Home Edition",
         "studio": "AI Studio",
         "tagline": "Tradizione artigianale, precisione intelligente.",
 
-
-        # UI
         "language": "Lingua",
         "create": "Crea una ricetta",
         "helper": "Scrivi il gusto e la quantità. Se vuoi, scegli un profilo e un metodo.",
@@ -39,7 +50,6 @@ TRANSLATIONS = {
         "col_ing": "Ingrediente",
         "col_qty": "Quantità (g)",
 
-        # PDF
         "pdf_title": "Nimue Gelato Artigianale – AI Studio",
         "pdf_flavour": "Gusto",
         "pdf_amount": "Quantità",
@@ -47,10 +57,12 @@ TRANSLATIONS = {
         "pdf_method": "Metodo",
         "footer_pdf": "© 2025 Nimue Gelato Artigianale · Tutti i diritti riservati · Creato da Gianni Di Prete",
 
-        # Footer app
         "footer_app_l1": "Nimue Gelato Artigianale · AI Studio",
         "footer_app_l2": "© 2025 Tutti i diritti riservati.",
         "footer_app_l3": "Creato da Gianni Di Prete",
+
+        # Nota sotto la tabella ingredienti
+        "note_pdf": "Per la procedura e le variazioni di ingredienti acquista e scarica il PDF.",
 
         # --- LANDING ---
         "landing_eyebrow": "Strumenti per gelato a casa",
@@ -85,7 +97,6 @@ TRANSLATIONS = {
 
         "landing_bottom_title": "Pronto a provare Nimue AI Studio?",
 
-        # Select options (valori backend stabili)
         "profile_opts": {
             "": "Standard",
             "classica": "Classica",
@@ -101,7 +112,6 @@ TRANSLATIONS = {
             "pacojet": "Pacojet",
         },
 
-        # Errors
         "err_flavour": "Inserisci il gusto del gelato.",
         "err_qty_zero": "La quantità deve essere maggiore di zero.",
         "err_qty_invalid": "Inserisci una quantità valida in kg (es. 1 oppure 1,5).",
@@ -130,7 +140,7 @@ TRANSLATIONS = {
         "col_ing": "Ingredient",
         "col_qty": "Quantity (g)",
 
-        "pdf_title": "Nimue Gelato Artigianale – AI Studio",
+        "pdf_title": "Nimue Artisanal Gelato – AI Studio",
         "pdf_flavour": "Flavor",
         "pdf_amount": "Quantity",
         "pdf_profile": "Profile",
@@ -141,7 +151,8 @@ TRANSLATIONS = {
         "footer_app_l2": "© 2025 All rights reserved.",
         "footer_app_l3": "Created by Gianni Di Prete",
 
-        # --- LANDING ---
+        "note_pdf": "To get the full procedure and ingredient variations, purchase and download the PDF.",
+
         "landing_eyebrow": "Gelato tools for home",
         "landing_h1": "Create balanced gelato recipes in minutes.",
         "landing_p": "Nimue AI Studio – Home Edition helps you create clear, repeatable recipes with simple ingredients, step-by-step instructions, and exportable PDFs.",
@@ -193,7 +204,6 @@ TRANSLATIONS = {
         "err_qty_zero": "Quantity must be greater than zero.",
         "err_qty_invalid": "Enter a valid quantity in kg (e.g., 1 or 1.5).",
         "err_no_recipe": "No recipe to export as PDF.",
-
     },
 
     "es": {
@@ -218,7 +228,7 @@ TRANSLATIONS = {
         "col_ing": "Ingrediente",
         "col_qty": "Cantidad (g)",
 
-        "pdf_title": "Nimue Gelato Artigianale – AI Studio",
+        "pdf_title": "Nimue Helado Artesanal – AI Studio",
         "pdf_flavour": "Sabor",
         "pdf_amount": "Cantidad",
         "pdf_profile": "Perfil",
@@ -229,7 +239,8 @@ TRANSLATIONS = {
         "footer_app_l2": "© 2025 Todos los derechos reservados.",
         "footer_app_l3": "Creado por Gianni Di Prete",
 
-        # --- LANDING ---
+        "note_pdf": "Para obtener el procedimiento y las variaciones de ingredientes, compra y descarga el PDF.",
+
         "landing_eyebrow": "Herramientas de helado para casa",
         "landing_h1": "Crea recetas de helado equilibradas en pocos minutos.",
         "landing_p": "Nimue AI Studio – Edición Hogar te ayuda a crear recetas claras y repetibles, con ingredientes sencillos, pasos guiados y PDF exportable.",
@@ -266,7 +277,7 @@ TRANSLATIONS = {
             "": "Estándar",
             "classica": "Clásica",
             "senza uova": "Sin huevo",
-            "light": "Light",
+            "light": "Ligera",
             "vegana": "Vegana",
             "gourmet": "Gourmet",
         },
@@ -281,7 +292,6 @@ TRANSLATIONS = {
         "err_qty_zero": "La cantidad debe ser mayor que cero.",
         "err_qty_invalid": "Introduce una cantidad válida en kg (p. ej., 1 o 1,5).",
         "err_no_recipe": "No hay receta para exportar a PDF.",
-
     },
 
     "fr": {
@@ -306,7 +316,7 @@ TRANSLATIONS = {
         "col_ing": "Ingrédient",
         "col_qty": "Quantité (g)",
 
-        "pdf_title": "Nimue Gelato Artigianale – AI Studio",
+        "pdf_title": "Nimue Glace Artisanale – AI Studio",
         "pdf_flavour": "Parfum",
         "pdf_amount": "Quantité",
         "pdf_profile": "Profil",
@@ -317,7 +327,8 @@ TRANSLATIONS = {
         "footer_app_l2": "© 2025 Tous droits réservés.",
         "footer_app_l3": "Créé par Gianni Di Prete",
 
-        # --- LANDING ---
+        "note_pdf": "Pour obtenir la procédure complète et les variantes d’ingrédients, achetez et téléchargez le PDF.",
+
         "landing_eyebrow": "Outils de glace pour la maison",
         "landing_h1": "Créez des recettes de glace équilibrées en quelques minutes.",
         "landing_p": "Nimue AI Studio – Édition Maison vous aide à créer des recettes claires et reproductibles, avec des ingrédients simples, un pas-à-pas et un PDF exportable.",
@@ -369,7 +380,6 @@ TRANSLATIONS = {
         "err_qty_zero": "La quantité doit être supérieure à zéro.",
         "err_qty_invalid": "Veuillez saisir une quantité valide en kg (ex. 1 ou 1,5).",
         "err_no_recipe": "Aucune recette à exporter en PDF.",
-
     },
 
     "de": {
@@ -377,7 +387,6 @@ TRANSLATIONS = {
         "subtitle": "Home Edition",
         "studio": "AI Studio",
         "tagline": "Handwerkliche Tradition, intelligente Präzision.",
-
 
         "language": "Sprache",
         "create": "Rezept erstellen",
@@ -395,7 +404,7 @@ TRANSLATIONS = {
         "col_ing": "Zutat",
         "col_qty": "Menge (g)",
 
-        "pdf_title": "Nimue Gelato Artigianale – AI Studio",
+        "pdf_title": "Nimue Handwerkliches Gelato – AI Studio",
         "pdf_flavour": "Geschmack",
         "pdf_amount": "Menge",
         "pdf_profile": "Profil",
@@ -406,7 +415,8 @@ TRANSLATIONS = {
         "footer_app_l2": "© 2025 Alle Rechte vorbehalten.",
         "footer_app_l3": "Erstellt von Gianni Di Prete",
 
-        # --- LANDING ---
+        "note_pdf": "Um die vollständige Anleitung und Zutatenvarianten zu erhalten, kaufe und lade das PDF herunter.",
+
         "landing_eyebrow": "Gelato-Tools für zu Hause",
         "landing_h1": "Erstelle ausgewogene Gelato-Rezepte in wenigen Minuten.",
         "landing_p": "Nimue AI Studio – Home Edition hilft dir, klare und reproduzierbare Rezepte zu erstellen – mit einfachen Zutaten, Schritt-für-Schritt-Anleitung und exportierbarem PDF.",
@@ -458,11 +468,13 @@ TRANSLATIONS = {
         "err_qty_zero": "Die Menge muss größer als null sein.",
         "err_qty_invalid": "Bitte gib eine gültige Menge in kg ein (z.B. 1 oder 1,5).",
         "err_no_recipe": "Kein Rezept zum PDF-Export.",
-
     },
 }
 
 
+# ==========================
+#        LINGUA
+# ==========================
 def get_lang():
     lang = (
         request.args.get("lang")
@@ -470,13 +482,17 @@ def get_lang():
         or session.get("lang")
         or "it"
     ).strip()
+
     if lang not in TRANSLATIONS:
         lang = "it"
+
     session["lang"] = lang
     return lang, TRANSLATIONS[lang]
 
 
-# --- PDF helpers ---
+# ==========================
+#     FUNZIONI PDF
+# ==========================
 def draw_footer(c, width, bottom_margin, footer_text):
     c.saveState()
     c.setFont("Helvetica", 8)
@@ -489,7 +505,8 @@ def wrap_text_to_lines(text, font_name, font_size, max_width):
     if not text:
         return [""]
     words = text.split(" ")
-    lines, current = [], ""
+    lines = []
+    current = ""
     for w in words:
         test = (current + " " + w).strip() if current else w
         if stringWidth(test, font_name, font_size) <= max_width:
@@ -513,39 +530,10 @@ def wrap_text_to_lines(text, font_name, font_size, max_width):
         lines.append(current)
     return lines
 
-def extract_ingredients_from_recipe(recipe_text: str) -> list[str]:
-    """
-    Estrae i nomi degli ingredienti dalla tabella MARKDOWN
-    Colonne: ingredient | grams
-    """
-    ingredients = []
-    in_table = False
 
-    for line in recipe_text.splitlines():
-        line = line.strip()
-
-        # inizio tabella
-        if line.lower().startswith("| ingredient"):
-            in_table = True
-            continue
-
-        # riga separatore |---|
-        if in_table and re.match(r"^\|\s*-+", line):
-            continue
-
-        # fine tabella
-        if in_table and not line.startswith("|"):
-            break
-
-        if in_table:
-            parts = [p.strip() for p in line.strip("|").split("|")]
-            if len(parts) == 2:
-                name = parts[0]
-                if name.lower() != "ingredient":
-                    ingredients.append(name)
-
-    return ingredients
-
+# ==========================
+#         ROUTES
+# ==========================
 @app.route("/app", methods=["GET", "POST"])
 def app_page():
     lang, t = get_lang()
@@ -557,11 +545,17 @@ def app_page():
     profilo = ""
     metodo = ""
 
+    pdf_unlocked = session.get("pdf_unlocked", False)
+
     if request.method == "POST":
         flavour = request.form.get("flavour", "").strip()
         quantity = request.form.get("quantity", "").strip()
         profilo = request.form.get("profilo", "").strip()
         metodo = request.form.get("metodo", "").strip()
+
+        # nuova ricetta => reset sblocco PDF
+        session["pdf_unlocked"] = False
+        pdf_unlocked = False
 
         if not flavour:
             error = t["err_flavour"]
@@ -576,12 +570,13 @@ def app_page():
                 error = t["err_qty_invalid"]
 
         if not error:
+            # qui chiami il modello (quando avrai di nuovo la chiave attiva)
             recipe = genera_ricetta_testo(
                 flavour,
                 quantita_kg,
                 profilo or None,
                 metodo or None,
-                lang=lang
+                lang=lang,
             )
 
     return render_template(
@@ -594,7 +589,9 @@ def app_page():
         metodo=metodo,
         lang=lang,
         t=t,
+        pdf_unlocked=pdf_unlocked,
     )
+
 
 @app.route("/", methods=["GET"])
 def landing():
@@ -650,6 +647,7 @@ def download_pdf():
             metodo="",
             lang=lang,
             t=t,
+            pdf_unlocked=False,
         )
 
     buffer = io.BytesIO()
@@ -689,6 +687,7 @@ def download_pdf():
     if metodo:
         metodo_label = t.get("method_opts", {}).get(metodo, metodo)
         details.append(f"{t['pdf_method']}: {metodo_label}")
+
     if details:
         c.drawString(left_margin, y, " · ".join(details))
         y -= 20
@@ -697,9 +696,9 @@ def download_pdf():
 
     righe = recipe_text.splitlines()
 
-    # Find first markdown table block
     start_idx = None
     end_idx = None
+
     for i, line in enumerate(righe):
         s = line.strip()
         if s.startswith("|") and s.count("|") >= 2:
@@ -719,7 +718,11 @@ def download_pdf():
             break
         end_idx = j
 
-    table_block = righe[start_idx:end_idx] if (start_idx is not None and end_idx is not None) else []
+    table_block = (
+        righe[start_idx:end_idx]
+        if (start_idx is not None and end_idx is not None)
+        else []
+    )
 
     rows = []
     for raw in table_block:
@@ -741,16 +744,20 @@ def download_pdf():
 
         data = [[t["col_ing"], t["col_qty"]]] + tabella
         table = Table(data, colWidths=[340, 100])
-        table.setStyle(TableStyle([
-            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f2d9c2")),
-            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-            ("FONTSIZE", (0, 0), (-1, -1), 9),
-            ("ALIGN", (1, 1), (1, -1), "RIGHT"),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-            ("LEFTPADDING", (0, 0), (-1, -1), 6),
-            ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-        ]))
+        table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f2d9c2")),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 0), (-1, -1), 9),
+                    ("ALIGN", (1, 1), (1, -1), "RIGHT"),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                ]
+            )
+        )
 
         w, h = table.wrap(0, 0)
         if y - h < bottom_margin + 30:
@@ -762,7 +769,7 @@ def download_pdf():
 
     remaining = righe[:]
     if start_idx is not None and end_idx is not None and end_idx > start_idx:
-        remaining = righe[:start_idx] + righe[end_idx:]
+      remaining = righe[:start_idx] + righe[end_idx:]
 
     font_name = "Helvetica"
     font_size = 10
@@ -783,7 +790,9 @@ def download_pdf():
 
         if is_heading:
             c.setFont("Helvetica-Bold", 11)
-            for wl in wrap_text_to_lines(text_line, "Helvetica-Bold", 11, max_text_width):
+            for wl in wrap_text_to_lines(
+                text_line, "Helvetica-Bold", 11, max_text_width
+            ):
                 if y <= bottom_margin + 30:
                     new_page()
                     y = height - 72
@@ -795,7 +804,9 @@ def download_pdf():
             continue
 
         c.setFont(font_name, font_size)
-        for wl in wrap_text_to_lines(text_line, font_name, font_size, max_text_width):
+        for wl in wrap_text_to_lines(
+            text_line, font_name, font_size, max_text_width
+        ):
             if y <= bottom_margin + 30:
                 new_page()
                 y = height - 72
@@ -805,23 +816,45 @@ def download_pdf():
 
     c.save()
     buffer.seek(0)
+
+    # ogni volta che scarica il PDF, richiudi lo sblocco
+    session["pdf_unlocked"] = False
+
     filename = f"Nimue_AI_Studio_{lang}_{flavour.replace(' ', '_')}.pdf"
-    return send_file(buffer, as_attachment=True, download_name=filename, mimetype="application/pdf")
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name=filename,
+        mimetype="application/pdf",
+    )
+
+
+
+@app.route("/buy_pdf", methods=["POST"])
+def buy_pdf():
+    """
+    Paywall finto: marca il PDF come sbloccato.
+    In produzione qui ci andrà Stripe Checkout o simile.
+    """
+    lang = (request.form.get("lang") or session.get("lang") or "it").strip()
+    if lang not in TRANSLATIONS:
+        lang = "it"
+
+    session["pdf_unlocked"] = True
+    return redirect(url_for("app_page", lang=lang))
+
 
 @app.route("/api/sostituzioni", methods=["POST"])
 def api_sostituzioni():
-    data = request.json
-    ingredient = data.get("ingredient")
+    data = request.json or {}
+    ingredient = (data.get("ingredient") or "").strip()
 
     if not ingredient:
         return jsonify({"error": "Ingrediente mancante"}), 400
 
     options = get_substitutions(ingredient)
 
-    return jsonify({
-        "ingredient": ingredient,
-        "substitutions": options
-    })
+    return jsonify({"ingredient": ingredient, "substitutions": options})
 
 
 if __name__ == "__main__":
