@@ -386,14 +386,14 @@ button[type="submit"]{
                 <button type="submit" class="action-btn">📄 {{ t["pdf"] }}</button>
               </form>
             {% else %}
-              <!-- PDF bloccato: bottone “acquisto” (per ora finto) -->
-              <form method="POST" action="/buy_pdf" style="margin:0;">
-                <input type="hidden" name="lang" value="{{ lang }}">
-                <button type="submit" class="action-btn">
-                  💶 Unlock PDF – 0,99€
+              <!-- PDF NON sbloccato: vai al pagamento -->
+              <form method="POST" action="{{ url_for('pay_pdf', lang=lang) }}" style="margin:0; display:inline;">
+                <button type="submit" class="action-btn premium">
+                  💳 Scarica PDF – 0,99€
                 </button>
               </form>
             {% endif %}
+
           </div>
           {% endif %}
         </div>

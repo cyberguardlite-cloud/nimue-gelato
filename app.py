@@ -579,6 +579,14 @@ def app_page():
                 lang=lang,
             )
 
+            if recipe:
+                session["last_recipe"] = recipe
+                session["last_flavour"] = flavour
+                session["last_quantity"] = quantity
+                session["last_profilo"] = profilo
+                session["last_metodo"] = metodo
+
+
     return render_template(
         "index.html",
         recipe=recipe,
@@ -625,16 +633,36 @@ def api_genera_ricetta():
     return jsonify({"recipe": recipe, "lang": lang})
 
 
-@app.route("/download_pdf", methods=["POST"])
+@app.route("/download_pdf", methods=["GET", "POST"])
 def download_pdf():
-    lang = (request.form.get("lang") or session.get("lang") or "it").strip()
+    # lang: se GET lo prendi da querystring, se POST dal form
+    lang = (
+        request.args.get("lang")
+        or request.form.get("lang")
+        or session.get("lang")
+        or "it"
+    ).strip()
     t = TRANSLATIONS.get(lang, TRANSLATIONS["it"])
 
-    recipe_text = (request.form.get("recipe_text") or "").strip()
-    flavour = (request.form.get("flavour") or "").strip() or "Gelato"
-    quantity = (request.form.get("quantity") or "").strip()
-    profilo = (request.form.get("profilo") or "").strip()
-    metodo = (request.form.get("metodo") or "").strip()
+    # 🔒 BLOCCO ACCESSO PDF SE NON PAGATO
+    if not session.get("pdf_unlocked", False):
+        return redirect(url_for("app_page", lang=lang, keep=1))
+
+    # Se arrivi in GET (dopo pagamento), prendi tutto dalla sessione
+    if request.method == "GET":
+        recipe_text = (session.get("last_recipe") or "").strip()
+        flavour = (session.get("last_flavour") or "Gelato").strip()
+        quantity = (session.get("last_quantity") or "").strip()
+        profilo = (session.get("last_profilo") or "").strip()
+        metodo = (session.get("last_metodo") or "").strip()
+    else:
+        # Se arrivi dal bottone "PDF sbloccato", prendi dal form (come già fai)
+        recipe_text = (request.form.get("recipe_text") or "").strip()
+        flavour = (request.form.get("flavour") or "").strip() or "Gelato"
+        quantity = (request.form.get("quantity") or "").strip()
+        profilo = (request.form.get("profilo") or "").strip()
+        metodo = (request.form.get("metodo") or "").strip()
+
 
     if not recipe_text:
         return render_template(
@@ -855,6 +883,36 @@ def api_sostituzioni():
     options = get_substitutions(ingredient)
 
     return jsonify({"ingredient": ingredient, "substitutions": options})
+
+@app.route("/pay_pdf", methods=["POST"])
+def pay_pdf():
+    lang, t = get_lang()
+
+    if not session.get("last_recipe"):
+        # niente ricetta => torna indietro
+        return redirect(url_for("app_page", lang=lang))
+
+    # qui poi sostituiremo con Stripe
+    return redirect(url_for("paywall_page", lang=lang, keep=1))
+
+@app.route("/paywall")
+def paywall_page():
+    lang, t = get_lang()
+    if not session.get("last_recipe"):
+        return redirect(url_for("app_page", lang=lang))
+    return render_template("paywall.html", lang=lang)
+
+@app.route("/pay_ok", methods=["POST"])
+def pay_ok():
+    lang, t = get_lang()
+
+    if not session.get("last_recipe"):
+        return redirect(url_for("app_page", lang=lang))
+
+    session["pdf_unlocked"] = True
+    return redirect(url_for("download_pdf", lang=lang))
+
+
 
 
 if __name__ == "__main__":

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pagamento PDF</title>
+</head>
+<body style="font-family:system-ui; max-width:720px; margin:40px auto;">
+  <h2>Scarica PDF – 0,99€</h2>
+  <p>Pagamento di test (poi lo sostituiamo con Stripe).</p>
+
+  <form method="POST" action="{{ url_for('pay_ok', lang=lang) }}">
+    <button type="submit" style="padding:12px 18px; font-size:16px;">
+      Paga (TEST) e scarica PDF
+    </button>
+  </form>
+
+  <p style="margin-top:18px;">
+    <a href="{{ url_for('app_page', lang=lang, keep=1) }}">⬅ Torna alla ricetta</a>
+  </p>
+</body>
+</html>
