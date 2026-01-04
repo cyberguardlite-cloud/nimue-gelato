@@ -9,11 +9,13 @@
   <h2>Scarica PDF – 0,99€</h2>
   <p>Pagamento di test (poi lo sostituiamo con Stripe).</p>
 
-  <form method="POST" action="{{ url_for('pay_ok', lang=lang) }}">
-    <button type="submit" style="padding:12px 18px; font-size:16px;">
-      Paga (TEST) e scarica PDF
-    </button>
+  <form method="POST" action="{{ url_for('stripe_checkout', lang=lang) }}">
+  <button type="submit" style="padding:12px 18px; font-size:16px;">
+    💳 Paga con Stripe e scarica PDF
+  </button>
   </form>
+
+
 
   <p style="margin-top:18px;">
     <a href="{{ url_for('app_page', lang=lang, keep=1) }}">⬅ Torna alla ricetta</a>

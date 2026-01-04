@@ -371,8 +371,6 @@ button[type="submit"]{
 
           {% if recipe %}
           <div class="actions">
-            <!-- Sempre disponibile -->
-            <button type="button" class="action-btn" onclick="copyRecipe()">📋 {{ t["copy"] }}</button>
 
             {% if pdf_unlocked %}
               <!-- PDF sbloccato: mostra il download -->
@@ -386,8 +384,7 @@ button[type="submit"]{
                 <button type="submit" class="action-btn">📄 {{ t["pdf"] }}</button>
               </form>
             {% else %}
-              <!-- PDF NON sbloccato: vai al pagamento -->
-              <form method="POST" action="{{ url_for('pay_pdf', lang=lang) }}" style="margin:0; display:inline;">
+              <form method="POST" action="{{ url_for('stripe_checkout', lang=lang) }}">
                 <button type="submit" class="action-btn premium">
                   💳 Scarica PDF – 0,99€
                 </button>
@@ -487,7 +484,7 @@ function renderRecipe(text){
     `;
 
     if (typeof pdfNote === "string" && pdfNote.trim()) {
-      html += `<p class="helper" style="margin-top:8px;">${escapeHtml(pdfNote)}</p>`;
+      html += `<p class="helper" style="margin-top:8px; font-weight:700;">${escapeHtml(pdfNote)}</p>`;
     }
   }
 
@@ -503,6 +500,31 @@ if(typeof rawRecipe === "string" && rawRecipe.trim()){
   renderRecipe(rawRecipe);
 }
 </script>
+
+{% if request.args.get('dl') == '1' %}
+<script>
+  const url = "{{ url_for('download_pdf', lang=lang) }}";
+
+  // Metodo 1 (più affidabile): nuova scheda per il download
+  const w = window.open(url, "_blank");
+
+  // Fallback: se il popup è bloccato, usa iframe
+  if (!w) {
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    iframe.src = url;
+    document.body.appendChild(iframe);
+  }
+
+  // Ripulisci l'URL per evitare loop
+  setTimeout(() => {
+    const cleanUrl = "{{ url_for('app_page', lang=lang, keep=1) }}";
+    window.history.replaceState({}, "", cleanUrl);
+  }, 800);
+</script>
+{% endif %}
+
+
 
 </body>
 </html>

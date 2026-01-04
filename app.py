@@ -23,6 +23,7 @@ from reportlab.lib import colors
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from flask import Response
 from flask import request, abort
+from flask import jsonify
 
 
 app = Flask(__name__)
@@ -1008,6 +1009,13 @@ def stripe_webhook():
         # - sbloccare download persistenti
 
     return "", 200
+
+@app.get("/version")
+def version():
+    return jsonify({
+        "version": "2026-01-04 webhook-step-1",
+        "render_commit": os.environ.get("RENDER_GIT_COMMIT", "unknown")
+    })
 
 
 
