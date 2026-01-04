@@ -10,6 +10,9 @@ from flask import (
 )
 import io
 import re
+import os
+import stripe
+
 
 from gelato_engine import genera_ricetta_testo, get_substitutions
 
@@ -18,10 +21,17 @@ from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, TableStyle
 from reportlab.lib import colors
 from reportlab.pdfbase.pdfmetrics import stringWidth
+from flask import Response
+from flask import request, abort
 
 
 app = Flask(__name__)
 app.secret_key = "CAMBIA_QUESTA_CHIAVE_CON_UNA_TUA"  # metti una stringa lunga e casuale
+stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
+STRIPE_PRICE_ID = os.environ.get("STRIPE_PRICE_ID")
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
+
+
 
 
 # ==========================
@@ -902,6 +912,56 @@ def paywall_page():
         return redirect(url_for("app_page", lang=lang))
     return render_template("paywall.html", lang=lang)
 
+@app.route("/stripe/checkout", methods=["POST"])
+def stripe_checkout():
+    lang, t = get_lang()
+
+    if not session.get("last_recipe"):
+        return redirect(url_for("app_page", lang=lang))
+
+    if not stripe.api_key or not STRIPE_PRICE_ID:
+        return "Stripe non configurato", 500
+
+    success_url = (
+        url_for("stripe_success", _external=True)
+        + "?session_id={CHECKOUT_SESSION_ID}&lang="
+        + lang
+    )
+    cancel_url = url_for("app_page", _external=True, lang=lang, keep=1)
+
+    checkout_session = stripe.checkout.Session.create(
+        mode="payment",
+        line_items=[{"price": STRIPE_PRICE_ID, "quantity": 1}],
+        success_url=success_url,
+        cancel_url=cancel_url,
+    )
+
+    return redirect(checkout_session.url, code=303)
+
+
+
+@app.route("/stripe/success", methods=["GET"])
+def stripe_success():
+    lang, t = get_lang()
+    session_id = request.args.get("session_id", "").strip()
+
+    if not session.get("last_recipe"):
+        return redirect(url_for("app_page", lang=lang))
+
+    if not session_id:
+        return redirect(url_for("app_page", lang=lang, keep=1))
+
+    try:
+        s = stripe.checkout.Session.retrieve(session_id)
+    except Exception:
+        return redirect(url_for("app_page", lang=lang, keep=1))
+
+    if s.get("payment_status") == "paid" or s.get("status") == "complete":
+        session["pdf_unlocked"] = True
+        return redirect(url_for("app_page", lang=lang, keep=1, dl=1))
+
+    return redirect(url_for("app_page", lang=lang, keep=1))
+
 @app.route("/pay_ok", methods=["POST"])
 def pay_ok():
     lang, t = get_lang()
@@ -912,6 +972,42 @@ def pay_ok():
     session["pdf_unlocked"] = True
     return redirect(url_for("download_pdf", lang=lang))
 
+@app.route("/stripe/webhook", methods=["POST"])
+def stripe_webhook():
+    payload = request.data
+    sig_header = request.headers.get("Stripe-Signature")
+
+    webhook_secret = os.environ.get("STRIPE_WEBHOOK_SECRET")
+    if not webhook_secret:
+        return "Webhook secret missing", 500
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, webhook_secret
+        )
+    except ValueError:
+        # Payload non valido
+        abort(400)
+    except stripe.error.SignatureVerificationError:
+        # Firma non valida
+        abort(400)
+
+    # ✅ EVENTO PRINCIPALE
+    if event["type"] == "checkout.session.completed":
+        session_obj = event["data"]["object"]
+
+        # Qui puoi usare metadata se vuoi in futuro
+        # user_id = session_obj.get("metadata", {}).get("user_id")
+
+        # Per ora logghiamo e basta
+        print("✅ Pagamento confermato via webhook:", session_obj["id"])
+
+        # Qui in futuro potrai:
+        # - salvare su DB
+        # - inviare email
+        # - sbloccare download persistenti
+
+    return "", 200
 
 
 
