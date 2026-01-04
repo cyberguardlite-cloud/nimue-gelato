@@ -1010,12 +1010,18 @@ def stripe_webhook():
 
     return "", 200
 
+
+@app.get("/health")
+def health():
+    return jsonify(ok=True)
+
 @app.get("/version")
 def version():
-    return jsonify({
-        "version": "2026-01-04 webhook-step-1",
-        "render_commit": os.environ.get("RENDER_GIT_COMMIT", "unknown")
-    })
+    import os
+    return jsonify(
+        version="2026-01-04 webhook-step-1",
+        render_commit=os.environ.get("RENDER_GIT_COMMIT", "unknown")
+    )
 
 
 
