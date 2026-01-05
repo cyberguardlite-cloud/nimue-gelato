@@ -413,7 +413,13 @@ button[type="submit"]{
     <footer class="footer">
       <strong>{{ t["footer_app_l1"] }}</strong><br>
       {{ t["footer_app_l2"] }}<br>
-      {{ t["footer_app_l3"] }}
+      {{ t["footer_app_l3"] }}<br>
+      <span>
+        {{ t.get("footer_contact_label","Contatti") }}:
+        <a href="mailto:nimuegelateria@gmail.com">
+          nimuegelateria@gmail.com
+        </a>
+      </span>
     </footer>
 
   </div>

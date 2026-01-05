@@ -71,6 +71,8 @@ TRANSLATIONS = {
         "footer_app_l1": "Nimue Gelato Artigianale · AI Studio",
         "footer_app_l2": "© 2026 Tutti i diritti riservati.",
         "footer_app_l3": "Creato da Gianni Di Prete",
+        "footer_contact_label" : "Contatti",
+
 
         # Nota sotto la tabella ingredienti
         "note_pdf": "Per la procedura e le variazioni di ingredienti acquista e scarica il PDF.",
@@ -163,6 +165,7 @@ TRANSLATIONS = {
         "footer_app_l1": "Nimue Artisanal Gelato · AI Studio",
         "footer_app_l2": "© 2026 All rights reserved.",
         "footer_app_l3": "Created by Gianni Di Prete",
+        "footer_contact_label": "Contact",
 
         "note_pdf": "To get the full procedure and ingredient variations, purchase and download the PDF.",
 
@@ -252,6 +255,7 @@ TRANSLATIONS = {
         "footer_app_l1": "Nimue Helado Artesanal · AI Studio",
         "footer_app_l2": "© 2026 Todos los derechos reservados.",
         "footer_app_l3": "Creado por Gianni Di Prete",
+        "footer_contact_label": "Contacto",
 
         "note_pdf": "Para obtener el procedimiento y las variaciones de ingredientes, compra y descarga el PDF.",
 
@@ -341,6 +345,7 @@ TRANSLATIONS = {
         "footer_app_l1": "Nimue Glace Artisanale · AI Studio",
         "footer_app_l2": "© 2026 Tous droits réservés.",
         "footer_app_l3": "Créé par Gianni Di Prete",
+        "footer_contact_label": "Contact",
 
         "note_pdf": "Pour obtenir la procédure complète et les variantes d’ingrédients, achetez et téléchargez le PDF.",
 
@@ -430,6 +435,7 @@ TRANSLATIONS = {
         "footer_app_l1": "Nimue Handwerkliches Gelato · AI Studio",
         "footer_app_l2": "© 2026 Alle Rechte vorbehalten.",
         "footer_app_l3": "Erstellt von Gianni Di Prete",
+        "footer_contact_label": "Kontakt",
 
         "note_pdf": "Um die vollständige Anleitung und Zutatenvarianten zu erhalten, kaufe und lade das PDF herunter.",
 
