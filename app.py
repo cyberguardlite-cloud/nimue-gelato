@@ -78,7 +78,7 @@ TRANSLATIONS = {
         "note_pdf": "Per la procedura e le variazioni di ingredienti acquista e scarica il PDF.",
 
         # --- LANDING ---
-        "landing_eyebrow": "Strumenti per gelato a casa",
+        "landing_eyebrow": "Dove la cucina diventa laboratorio",
         "landing_h1": "Crea ricette di gelato bilanciate, in pochi minuti.",
         "landing_p": "Nimue AI Studio – Home Edition ti aiuta a costruire ricette chiare e ripetibili, con ingredienti semplici, procedimento passo-passo e PDF esportabile.",
         "landing_cta_primary": "Crea la tua ricetta",
@@ -169,7 +169,7 @@ TRANSLATIONS = {
 
         "note_pdf": "To get the full procedure and ingredient variations, purchase and download the PDF.",
 
-        "landing_eyebrow": "Gelato tools for home",
+        "landing_eyebrow": "Where your kitchen becomes a lab",
         "landing_h1": "Create balanced gelato recipes in minutes.",
         "landing_p": "Nimue AI Studio – Home Edition helps you create clear, repeatable recipes with simple ingredients, step-by-step instructions, and exportable PDFs.",
         "landing_cta_primary": "Create your recipe",
@@ -259,7 +259,7 @@ TRANSLATIONS = {
 
         "note_pdf": "Para obtener el procedimiento y las variaciones de ingredientes, compra y descarga el PDF.",
 
-        "landing_eyebrow": "Herramientas de helado para casa",
+        "landing_eyebrow": "Donde la cocina se convierte en laboratorio",
         "landing_h1": "Crea recetas de helado equilibradas en pocos minutos.",
         "landing_p": "Nimue AI Studio – Edición Hogar te ayuda a crear recetas claras y repetibles, con ingredientes sencillos, pasos guiados y PDF exportable.",
         "landing_cta_primary": "Crea tu receta",
@@ -349,7 +349,7 @@ TRANSLATIONS = {
 
         "note_pdf": "Pour obtenir la procédure complète et les variantes d’ingrédients, achetez et téléchargez le PDF.",
 
-        "landing_eyebrow": "Outils de glace pour la maison",
+        "landing_eyebrow": "Là où la cuisine devient un laboratoire",
         "landing_h1": "Créez des recettes de glace équilibrées en quelques minutes.",
         "landing_p": "Nimue AI Studio – Édition Maison vous aide à créer des recettes claires et reproductibles, avec des ingrédients simples, un pas-à-pas et un PDF exportable.",
         "landing_cta_primary": "Créer ta recette",
@@ -439,7 +439,7 @@ TRANSLATIONS = {
 
         "note_pdf": "Um die vollständige Anleitung und Zutatenvarianten zu erhalten, kaufe und lade das PDF herunter.",
 
-        "landing_eyebrow": "Gelato-Tools für zu Hause",
+        "landing_eyebrow": "Wo die Küche zum Labor wird",
         "landing_h1": "Erstelle ausgewogene Gelato-Rezepte in wenigen Minuten.",
         "landing_p": "Nimue AI Studio – Home Edition hilft dir, klare und reproduzierbare Rezepte zu erstellen – mit einfachen Zutaten, Schritt-für-Schritt-Anleitung und exportierbarem PDF.",
         "landing_cta_primary": "Rezept erstellen",
