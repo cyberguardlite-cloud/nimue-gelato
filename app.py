@@ -66,10 +66,10 @@ TRANSLATIONS = {
         "pdf_amount": "Quantità",
         "pdf_profile": "Profilo",
         "pdf_method": "Metodo",
-        "footer_pdf": "© 2025 Nimue Gelato Artigianale · Tutti i diritti riservati · Creato da Gianni Di Prete",
+        "footer_pdf": "© 2026 Nimue Gelato Artigianale · Tutti i diritti riservati · Creato da Gianni Di Prete",
 
         "footer_app_l1": "Nimue Gelato Artigianale · AI Studio",
-        "footer_app_l2": "© 2025 Tutti i diritti riservati.",
+        "footer_app_l2": "© 2026 Tutti i diritti riservati.",
         "footer_app_l3": "Creato da Gianni Di Prete",
 
         # Nota sotto la tabella ingredienti
@@ -79,9 +79,11 @@ TRANSLATIONS = {
         "landing_eyebrow": "Strumenti per gelato a casa",
         "landing_h1": "Crea ricette di gelato bilanciate, in pochi minuti.",
         "landing_p": "Nimue AI Studio – Home Edition ti aiuta a costruire ricette chiare e ripetibili, con ingredienti semplici, procedimento passo-passo e PDF esportabile.",
-        "landing_cta_primary": "Prova gratis",
+        "landing_cta_primary": "Crea la tua ricetta",
         "landing_cta_secondary": "Come funziona",
-        "landing_note": "Nessun account. Nessuna complicazione. Solo ricette fatte bene.",
+        "landing_note": "Nessun account. Paghi solo se vuoi il PDF completo (una tantum).",
+        "landing_payment_trust = Pagamento sicuro con Stripe"
+
 
         "landing_for_who_title": "Per chi è",
         "landing_for_who_1_title": "Appassionati",
@@ -106,7 +108,7 @@ TRANSLATIONS = {
         "landing_not_title": "Cosa non è",
         "landing_not_box": "Nimue non è un generatore casuale di ricette e non è un blog. È uno strumento artigianale: semplice da usare, serio nei risultati.",
 
-        "landing_bottom_title": "Pronto a provare Nimue AI Studio?",
+        "landing_bottom_title": "Pronto per Nimue AI Studio?",
 
         "profile_opts": {
             "": "Standard",
@@ -156,10 +158,10 @@ TRANSLATIONS = {
         "pdf_amount": "Quantity",
         "pdf_profile": "Profile",
         "pdf_method": "Method",
-        "footer_pdf": "© 2025 Nimue Artisanal Gelato · All rights reserved · Created by Gianni Di Prete",
+        "footer_pdf": "© 2026 Nimue Artisanal Gelato · All rights reserved · Created by Gianni Di Prete",
 
         "footer_app_l1": "Nimue Artisanal Gelato · AI Studio",
-        "footer_app_l2": "© 2025 All rights reserved.",
+        "footer_app_l2": "© 2026 All rights reserved.",
         "footer_app_l3": "Created by Gianni Di Prete",
 
         "note_pdf": "To get the full procedure and ingredient variations, purchase and download the PDF.",
@@ -167,9 +169,10 @@ TRANSLATIONS = {
         "landing_eyebrow": "Gelato tools for home",
         "landing_h1": "Create balanced gelato recipes in minutes.",
         "landing_p": "Nimue AI Studio – Home Edition helps you create clear, repeatable recipes with simple ingredients, step-by-step instructions, and exportable PDFs.",
-        "landing_cta_primary": "Try it free",
+        "landing_cta_primary": "Create your recipe",
         "landing_cta_secondary": "How it works",
-        "landing_note": "No account. No hassle. Just well-made recipes.",
+        "landing_note": "No account. You only pay if you want the full PDF (one-time).",
+        "landing_payment_trust": "Secure payment with Stripe",
 
         "landing_for_who_title": "Who it’s for",
         "landing_for_who_1_title": "Enthusiasts",
@@ -244,10 +247,10 @@ TRANSLATIONS = {
         "pdf_amount": "Cantidad",
         "pdf_profile": "Perfil",
         "pdf_method": "Método",
-        "footer_pdf": "© 2025 Nimue Helado Artesanal · Todos los derechos reservados · Creado por Gianni Di Prete",
+        "footer_pdf": "© 2026 Nimue Helado Artesanal · Todos los derechos reservados · Creado por Gianni Di Prete",
 
         "footer_app_l1": "Nimue Helado Artesanal · AI Studio",
-        "footer_app_l2": "© 2025 Todos los derechos reservados.",
+        "footer_app_l2": "© 2026 Todos los derechos reservados.",
         "footer_app_l3": "Creado por Gianni Di Prete",
 
         "note_pdf": "Para obtener el procedimiento y las variaciones de ingredientes, compra y descarga el PDF.",
@@ -255,9 +258,10 @@ TRANSLATIONS = {
         "landing_eyebrow": "Herramientas de helado para casa",
         "landing_h1": "Crea recetas de helado equilibradas en pocos minutos.",
         "landing_p": "Nimue AI Studio – Edición Hogar te ayuda a crear recetas claras y repetibles, con ingredientes sencillos, pasos guiados y PDF exportable.",
-        "landing_cta_primary": "Probar gratis",
+        "landing_cta_primary": "Crea tu receta",
         "landing_cta_secondary": "Cómo funciona",
-        "landing_note": "Sin cuenta. Sin complicaciones. Solo recetas bien hechas.",
+        "landing_note": "Sin cuenta. Solo pagas si quieres el PDF completo (pago único).",
+        "landing_payment_trust": "Pago seguro con Stripe",
 
         "landing_for_who_title": "Para quién es",
         "landing_for_who_1_title": "Aficionados",
@@ -332,10 +336,10 @@ TRANSLATIONS = {
         "pdf_amount": "Quantité",
         "pdf_profile": "Profil",
         "pdf_method": "Méthode",
-        "footer_pdf": "© 2025 Nimue Glace Artisanale · Tous droits réservés · Créé par Gianni Di Prete",
+        "footer_pdf": "© 2026 Nimue Glace Artisanale · Tous droits réservés · Créé par Gianni Di Prete",
 
         "footer_app_l1": "Nimue Glace Artisanale · AI Studio",
-        "footer_app_l2": "© 2025 Tous droits réservés.",
+        "footer_app_l2": "© 2026 Tous droits réservés.",
         "footer_app_l3": "Créé par Gianni Di Prete",
 
         "note_pdf": "Pour obtenir la procédure complète et les variantes d’ingrédients, achetez et téléchargez le PDF.",
@@ -343,9 +347,10 @@ TRANSLATIONS = {
         "landing_eyebrow": "Outils de glace pour la maison",
         "landing_h1": "Créez des recettes de glace équilibrées en quelques minutes.",
         "landing_p": "Nimue AI Studio – Édition Maison vous aide à créer des recettes claires et reproductibles, avec des ingrédients simples, un pas-à-pas et un PDF exportable.",
-        "landing_cta_primary": "Essayer gratuitement",
+        "landing_cta_primary": "Créer ta recette",
         "landing_cta_secondary": "Comment ça marche",
-        "landing_note": "Sans compte. Sans prise de tête. Juste des recettes bien faites.",
+        "landing_note": "Aucun compte. Tu ne paies que si tu veux le PDF complet (paiement unique).",
+        "landing_payment_trust": "Paiement sécurisé avec Stripe",
 
         "landing_for_who_title": "Pour qui",
         "landing_for_who_1_title": "Passionnés",
@@ -420,10 +425,10 @@ TRANSLATIONS = {
         "pdf_amount": "Menge",
         "pdf_profile": "Profil",
         "pdf_method": "Methode",
-        "footer_pdf": "© 2025 Nimue Handwerkliches Gelato · Alle Rechte vorbehalten · Erstellt von Gianni Di Prete",
+        "footer_pdf": "© 2026 Nimue Handwerkliches Gelato · Alle Rechte vorbehalten · Erstellt von Gianni Di Prete",
 
         "footer_app_l1": "Nimue Handwerkliches Gelato · AI Studio",
-        "footer_app_l2": "© 2025 Alle Rechte vorbehalten.",
+        "footer_app_l2": "© 2026 Alle Rechte vorbehalten.",
         "footer_app_l3": "Erstellt von Gianni Di Prete",
 
         "note_pdf": "Um die vollständige Anleitung und Zutatenvarianten zu erhalten, kaufe und lade das PDF herunter.",
@@ -431,9 +436,11 @@ TRANSLATIONS = {
         "landing_eyebrow": "Gelato-Tools für zu Hause",
         "landing_h1": "Erstelle ausgewogene Gelato-Rezepte in wenigen Minuten.",
         "landing_p": "Nimue AI Studio – Home Edition hilft dir, klare und reproduzierbare Rezepte zu erstellen – mit einfachen Zutaten, Schritt-für-Schritt-Anleitung und exportierbarem PDF.",
-        "landing_cta_primary": "Kostenlos testen",
+        "landing_cta_primary": "Rezept erstellen",
         "landing_cta_secondary": "So funktioniert’s",
-        "landing_note": "Kein Konto. Kein Stress. Nur gut gemachte Rezepte.",
+        "landing_note": "Kein Konto. Du zahlst nur, wenn du das vollständige PDF willst (einmalig).",
+        "landing_payment_trust": "Sichere Zahlung mit Stripe",
+
 
         "landing_for_who_title": "Für wen",
         "landing_for_who_1_title": "Fans",
