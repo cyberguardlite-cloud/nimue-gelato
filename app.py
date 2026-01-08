@@ -1040,11 +1040,13 @@ def version():
 
 @app.route("/blog")
 def blog_index():
-    return render_template("blog/index.html")
+    lang, t = get_lang()
+    return render_template("blog/index.html", lang=lang, t=t)
 
 @app.route("/blog/why-homemade-ice-cream-turns-icy")
 def blog_post_icy():
-    return render_template("blog/why-homemade-ice-cream-turns-icy.html")
+    lang, t = get_lang()
+    return render_template("blog/why-homemade-ice-cream-turns-icy.html", lang=lang, t=t)
 
 
 
