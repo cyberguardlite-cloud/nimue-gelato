@@ -151,6 +151,7 @@
         </div>
 
         <div class="tools">
+          <a class="cta-secondary" href="{{ url_for('blog_index') }}">Blog</a>
           <div class="lang">
             <label>{{ t.get("language","Lingua") }}</label>
             <form method="GET" action="{{ url_for('landing') }}" style="margin:0">
@@ -286,7 +287,8 @@
           {{ t.get("footer_contact_label","Contatti") }}:
           <a href="mailto:support@nimuegelateria.com">
             support@nimuegelateria.com
-          </a>
+          </a><br>
+          <a href="{{ url_for('blog_index') }}">Blog</a>
         </span>
       </div>
 
