@@ -12,6 +12,7 @@
     .btn{padding:10px 12px;border-radius:10px;border:1px solid #ddd;background:#f7f7f7;font-weight:700;cursor:pointer;margin-right:8px}
     .btn.ok{background:#e9fff3;border-color:#b9f2d2}
     .btn.no{background:#fff0f0;border-color:#ffd0d0}
+    pre{margin:6px 0 0;}
   </style>
 </head>
 <body>
@@ -22,10 +23,18 @@
       <div class="meta">
         #{{ r["id"] }} • {{ r["article_slug"] }} • {{ r["created_at"] }}
         {% if r["approved"] %} • ✅ APPROVED{% endif %}
+        {% if r["rejected"] %} • ❌ REJECTED{% endif %}
       </div>
 
       <b>Question{% if r["name"] %} ({{ r["name"] }}){% endif %}:</b>
       <div style="margin:6px 0 10px;">{{ r["question"] }}</div>
+
+      {% if r["ai_draft"] %}
+      <div style="margin-top:8px;">
+        <b>AI draft:</b>
+        <pre style="white-space:pre-wrap;background:#fafafa;border:1px solid #eee;padding:10px;border-radius:10px;">{{ r["ai_draft"] }}</pre>
+      </div>
+      {% endif %}
 
       <form method="POST" action="/admin/blog-questions/{{ r['id'] }}/update?token={{ request.args.get('token','') }}">
         <b>Final answer:</b>

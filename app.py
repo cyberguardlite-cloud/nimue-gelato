@@ -37,6 +37,12 @@ def db_conn():
     conn.row_factory = sqlite3.Row
     return conn
 
+def ensure_column(conn, table, column, coltype):
+    cols = [r["name"] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()]
+    if column not in cols:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {coltype}")
+
+
 def init_db():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     conn = db_conn()
@@ -54,8 +60,12 @@ def init_db():
     CREATE INDEX IF NOT EXISTS idx_blog_questions_slug ON blog_questions(article_slug);
     CREATE INDEX IF NOT EXISTS idx_blog_questions_approved ON blog_questions(approved);
     """)
+    # 👇 QUESTA È LA RIGA NUOVA (Passo 2)
+    ensure_column(conn, "blog_questions", "ai_draft", "TEXT")
+
     conn.commit()
     conn.close()
+
 
 def get_approved_questions(slug: str):
     conn = db_conn()
@@ -70,6 +80,42 @@ def get_approved_questions(slug: str):
     return rows
 
 init_db()
+
+def generate_ai_draft_for_question(article_slug: str, question: str) -> str:
+    """
+    Bozza automatica (safe) senza OpenAI.
+    Più avanti la colleghiamo a OpenAI/gelato_engine senza rompere nulla.
+    """
+    q = (question or "").strip()
+
+    base = [
+        "Thanks for the question! Here’s how I’d troubleshoot this step-by-step:",
+        "",
+        "### Quick diagnosis (most common causes)",
+        "1) Too much water / not enough solids (sugar + milk solids)",
+        "2) Not enough stabilizer/emulsifier (or none at all)",
+        "3) Mix not aged/chilled enough before churning",
+        "4) Churning/freezing too slowly (warm freezer bowl, low freezer power, big batch)",
+        "5) Storage too cold / not protected (freezer burn, temperature swings)",
+        "",
+        "### Questions I need from you",
+        "- What recipe base did you use (milk/cream/sugar amounts) and batch size?",
+        "- Did you use eggs? Any stabilizer (e.g. guar, locust bean gum, commercial mix)?",
+        "- How long did you chill/age the mix before churning?",
+        "- Which machine (or method) and how long was the churn?",
+        "- How cold is your freezer, and how do you store the ice cream (container type)?",
+        "",
+        "### Fast fixes you can try on the next batch",
+        "- Chill the base to 2–4°C and age 4–12h if possible.",
+        "- Improve solids: increase sugar slightly or add skim milk powder.",
+        "- Use a small stabilizer dose (even 0.2–0.4% can help).",
+        "- Pre-freeze container + use shallow container, press parchment on surface, freeze fast.",
+        "",
+        "If you share your exact recipe and method, I can give a precise adjustment.",
+    ]
+
+    return "\n".join(base)
+
 
 app.secret_key = "CAMBIA_QUESTA_CHIAVE_CON_UNA_TUA"  # metti una stringa lunga e casuale
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
@@ -128,7 +174,7 @@ TRANSLATIONS = {
         "landing_cta_primary": "Crea la tua ricetta",
         "landing_cta_secondary": "Come funziona",
         "landing_note": "Nessun account. Paghi solo se vuoi il PDF completo (una tantum).",
-        "landing_payment_trust = Pagamento sicuro con Stripe"
+        "landing_payment_trust" : "Pagamento sicuro con Stripe",
 
 
         "landing_for_who_title": "Per chi è",
@@ -1108,13 +1154,16 @@ def blog_post_icy():
 
         created_at = datetime.utcnow().isoformat(timespec="seconds") + "Z"
 
+        ai_draft = generate_ai_draft_for_question(slug, question)
+
         conn = db_conn()
-        conn.execute("""
-            INSERT INTO blog_questions (article_slug, name, question, approved, rejected, created_at)
-            VALUES (?, ?, ?, 0, 0, ?)
-        """, (slug, name, question, created_at))
+        cur = conn.execute("""
+            INSERT INTO blog_questions (article_slug, name, question, ai_draft, approved, rejected, created_at)
+            VALUES (?, ?, ?, ?, 0, 0, ?)
+        """, (slug, name, question, ai_draft, created_at))
         conn.commit()
         conn.close()
+
 
         return render_template(
             "blog/why-homemade-ice-cream-turns-icy.html",
@@ -1140,12 +1189,13 @@ def admin_blog_questions():
     require_admin()
     conn = db_conn()
     rows = conn.execute("""
-        SELECT id, article_slug, name, question, final_answer, approved, rejected, created_at
-        FROM blog_questions
-        WHERE rejected=0
-        ORDER BY id DESC
-        LIMIT 200
-    """).fetchall()
+    SELECT id, article_slug, name, question, ai_draft, final_answer, approved, rejected, created_at
+    FROM blog_questions
+    WHERE rejected=0
+    ORDER BY id DESC
+    LIMIT 200
+""").fetchall()
+
     conn.close()
     return render_template("admin/blog_questions.html", rows=rows)
 
