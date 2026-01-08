@@ -1,26 +1,167 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="{{ lang }}">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Nimue Blog | Home Ice Cream</title>
-  <meta name="description" content="Practical guides to make creamy ice cream at home: fix icy texture, hard ice cream, and common mistakes.">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nimue Blog – {{ t.get("studio","AI Studio") }}</title>
+  <meta name="description" content="Nimue Blog: practical guides to make better ice cream at home (avoid iciness, hardness, and common mistakes)." />
+
+  <style>
+    :root{
+      --bg: linear-gradient(135deg, #ffe9d2, #fff7e6);
+      --card:#ffffff;
+      --text:#222;
+      --muted:#666;
+      --accent:#ff9b4a;
+      --shadow:0 18px 50px rgba(0,0,0,.10);
+      --radius:28px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .page{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:16px;}
+    .wrap{width:100%;max-width:1150px;}
+
+    /* TOPBAR (coerente con app) */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      padding:10px 6px 14px;
+      flex-wrap:wrap;
+    }
+    .brand-text{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      text-align:left;
+    }
+    .brand-title{font-weight:950;font-size:1.15rem;line-height:1.05;}
+    .brand-studio{font-weight:950;letter-spacing:.14em;text-transform:uppercase;font-size:.82rem;}
+    .brand-tagline{color:var(--muted);font-size:.95rem;line-height:1.3;}
+
+    .tools{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;}
+    .cta{
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:12px 18px;border-radius:999px;
+      background:linear-gradient(135deg,var(--accent),#ff7a18);
+      color:#fff;font-weight:950;text-decoration:none;
+      box-shadow:0 10px 24px rgba(255,122,24,.28);
+      white-space:nowrap;
+    }
+    .cta-secondary{
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:12px 18px;border-radius:999px;
+      border:1px solid rgba(255,155,74,.45);
+      background:rgba(255,255,255,.85);
+      color:#b45717;font-weight:950;text-decoration:none;
+      white-space:nowrap;
+    }
+    .badge{
+      padding:8px 14px;
+      border-radius:999px;
+      font-size:.85rem;
+      background:rgba(32,201,151,.12);
+      color:#0f7a5c;
+      font-weight:900;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      white-space:nowrap;
+    }
+    .badge .dot{width:8px;height:8px;border-radius:50%;background:#20c997;}
+
+    /* CONTENT */
+    .card{
+      background:rgba(255,255,255,.78);
+      border:1px solid #eee;
+      border-radius:38px;
+      box-shadow:var(--shadow);
+      padding:26px;
+    }
+    h1{margin:0 0 10px;font-size:2.0rem;line-height:1.1;letter-spacing:-0.02em;font-weight:950;}
+    .lead{margin:0 0 16px;color:var(--muted);font-size:1.05rem;line-height:1.55;max-width:70ch;}
+    .list{margin:0;padding-left:18px;color:var(--muted);line-height:1.7;}
+    .list a{color:#b45717;font-weight:900;text-decoration:none;}
+    .list a:hover{text-decoration:underline;}
+    .meta{margin-top:14px;color:#777;font-size:.90rem;}
+
+    .footer{
+      margin-top:14px;
+      padding:18px 12px;
+      border-top:1px solid rgba(0,0,0,.08);
+      text-align:center;
+      font-size:.82rem;
+      color:#888;
+      line-height:1.55;
+    }
+
+    @media(max-width:900px){
+      .tools{flex-wrap:wrap}
+    }
+    @media(max-width:520px){
+      h1{font-size:1.6rem}
+      .cta,.cta-secondary{width:100%}
+      .topbar{align-items:flex-start}
+      .tools{width:100%;justify-content:flex-start}
+    }
+  </style>
 </head>
+
 <body>
-  <main style="max-width:900px;margin:60px auto;padding:0 16px;font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;">
-    <h1>Nimue Blog</h1>
-    <p>Guides for making better ice cream at home.</p>
+  <div class="page">
+    <div class="wrap">
 
-    <h2>Articles</h2>
-    <ul>
-      <li>
-        <a href="/blog/why-homemade-ice-cream-turns-icy">Why Homemade Ice Cream Turns Icy (And How to Fix It)</a>
-      </li>
-    </ul>
+      <div class="topbar">
+        <div class="brand-text">
+          <div class="brand-title">{{ t.get("app_title","Nimue") }}</div>
+          <div class="brand-studio">{{ t.get("studio","AI Studio") }}</div>
+          <div class="brand-tagline">Blog – Guides for better home ice cream</div>
+        </div>
 
-    <p style="margin-top:40px;">
-      <a href="/">← Back to app</a>
-    </p>
-  </main>
+        <div class="tools">
+          <a class="cta-secondary" href="{{ url_for('landing', lang=lang) }}">Home</a>
+          <a class="cta" href="{{ url_for('app_page', lang=lang) }}">Create your recipe</a>
+          <div class="badge"><span class="dot"></span>Online</div>
+        </div>
+      </div>
+
+      <section class="card">
+        <h1>Nimue Blog</h1>
+        <p class="lead">
+          Practical guides to get more consistent results when making ice cream at home.
+          No fluff—just the key variables that matter.
+        </p>
+
+        <ul class="list">
+          <li>
+            <a href="{{ url_for('blog_post_icy') }}">
+              Why Homemade Ice Cream Turns Icy (And How to Fix It)
+            </a>
+            <div class="meta">Ice crystals, freezer conditions, and a structured approach.</div>
+          </li>
+        </ul>
+
+        <div style="margin-top:18px; display:flex; gap:12px; flex-wrap:wrap;">
+          <a class="cta" href="{{ url_for('app_page', lang=lang) }}">Try Nimue AI Studio</a>
+          <a class="cta-secondary" href="{{ url_for('landing', lang=lang) }}">Back to app home</a>
+        </div>
+      </section>
+
+      <div class="footer">
+        <strong>{{ t.get("footer_app_l1","Nimue Gelato Artigianale • AI Studio") }}</strong><br>
+        © 2026 Tutti i diritti riservati.<br>
+        Creato da Gianni Di Prete<br>
+        Contatti: <a href="mailto:support@nimuegelateria.com">support@nimuegelateria.com</a>
+      </div>
+
+    </div>
+  </div>
 </body>
 </html>
+
