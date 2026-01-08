@@ -28,6 +28,11 @@
 
       <b>Question{% if r["name"] %} ({{ r["name"] }}){% endif %}:</b>
       <div style="margin:6px 0 10px;">{{ r["question"] }}</div>
+      <div style="margin-top:8px;">
+        <b>AI draft:</b>
+        <pre style="white-space:pre-wrap;background:#fafafa;border:1px solid #eee;padding:10px;border-radius:10px;">{{ r["ai_draft"] or "" }}</pre>
+        </div>
+
 
       {% if r["ai_draft"] %}
       <div style="margin-top:8px;">

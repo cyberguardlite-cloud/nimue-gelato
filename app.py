@@ -82,6 +82,33 @@ def get_approved_questions(slug: str):
 init_db()
 
 def generate_ai_draft_for_question(article_slug: str, question: str) -> str:
+    q = (question or "").strip()
+
+    base = [
+        "Thanks for the question — here’s a practical checklist you can try:",
+        "",
+        "### Quick diagnosis (most common causes)",
+        "1) Too much water / not enough solids (sugars + milk solids)",
+        "2) Not enough stabilizer/emulsifier (or none)",
+        "3) Base not aged/chilled enough before churning",
+        "4) Freezing too slowly (warm freezer bowl, weak freezer, big batch)",
+        "5) Storage too cold / temperature swings (freezer burn, crystals)",
+        "",
+        "### What to try (step-by-step)",
+        "• Chill the base to 4°C and let it rest 4–12 hours (aging)",
+        "• Increase solids slightly (milk powder / sugars) and reduce free water",
+        "• Use a small stabilizer dose (follow your stabilizer specs)",
+        "• Churn faster / pre-freeze the bowl longer / smaller batch size",
+        "• Harden quickly in the coldest part of the freezer, cover the surface",
+        "",
+        "### If you tell me this, I can be more precise",
+        "• Recipe (ingredients + grams), freezer temperature, and machine model",
+    ]
+
+    return "\n".join(base)
+
+
+def generate_ai_draft_for_question(article_slug: str, question: str) -> str:
     """
     Bozza automatica (safe) senza OpenAI.
     Più avanti la colleghiamo a OpenAI/gelato_engine senza rompere nulla.
@@ -1153,16 +1180,18 @@ def blog_post_icy():
             )
 
         created_at = datetime.utcnow().isoformat(timespec="seconds") + "Z"
-
         ai_draft = generate_ai_draft_for_question(slug, question)
 
         conn = db_conn()
-        cur = conn.execute("""
-            INSERT INTO blog_questions (article_slug, name, question, ai_draft, approved, rejected, created_at)
+        conn.execute("""
+            INSERT INTO blog_questions (
+                article_slug, name, question, ai_draft, approved, rejected, created_at
+            )
             VALUES (?, ?, ?, ?, 0, 0, ?)
         """, (slug, name, question, ai_draft, created_at))
         conn.commit()
         conn.close()
+
 
 
         return render_template(
