@@ -14,6 +14,7 @@ import os
 import stripe
 
 
+
 from gelato_engine import genera_ricetta_testo, get_substitutions
 
 from reportlab.lib.pagesizes import A4
@@ -24,6 +25,7 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 from flask import Response
 from flask import request, abort
 from flask import jsonify
+from flask import render_template
 
 
 app = Flask(__name__)
@@ -1035,6 +1037,14 @@ def version():
         version="2026-01-04 webhook-step-1",
         render_commit=os.environ.get("RENDER_GIT_COMMIT", "unknown")
     )
+
+@app.route("/blog")
+def blog_index():
+    return render_template("blog/index.html")
+
+@app.route("/blog/why-homemade-ice-cream-turns-icy")
+def blog_post_icy():
+    return render_template("blog/why-homemade-ice-cream-turns-icy.html")
 
 
 
