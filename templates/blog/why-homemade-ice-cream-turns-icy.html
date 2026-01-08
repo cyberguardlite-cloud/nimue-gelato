@@ -184,6 +184,55 @@
         </p>
       </article>
 
+      <section class="card" style="margin-top:28px;">
+    <h3 style="margin-top:0;">Questions & discussion</h3>
+
+    {% if qna_success %}
+        <div class="box" style="margin-bottom:12px;">
+        ✅ Thanks! Your question was submitted and is awaiting moderation.
+        </div>
+    {% endif %}
+
+    {% if qna_error %}
+        <div class="box" style="margin-bottom:12px;">
+        ⚠️ {{ qna_error }}
+        </div>
+    {% endif %}
+
+    {% if questions and questions|length > 0 %}
+        {% for q in questions %}
+        <div class="box" style="margin-bottom:12px;">
+            <div style="font-weight:900;">Q{% if q["name"] %} ({{ q["name"] }}){% endif %}:</div>
+            <div style="margin:6px 0 10px;">{{ q["question"] }}</div>
+
+            {% if q["final_answer"] %}
+            <div style="font-weight:900;">A:</div>
+            <div style="margin-top:6px;">{{ q["final_answer"] }}</div>
+            {% else %}
+            <em class="muted">Awaiting answer</em>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="muted" style="margin:0 0 12px;">No questions yet. Be the first!</p>
+    {% endif %}
+
+    <h4 style="margin:18px 0 10px;">Ask a question</h4>
+    <form method="POST">
+        <!-- honeypot anti-bot -->
+        <input type="text" name="website" style="display:none">
+
+        <input name="name" placeholder="Your name (optional)"
+        style="width:100%;padding:10px 12px;border-radius:14px;border:1px solid #ddd;margin-bottom:10px;">
+
+        <textarea name="question" required placeholder="Write your question..."
+        style="width:100%;min-height:110px;padding:10px 12px;border-radius:14px;border:1px solid #ddd;margin-bottom:10px;"></textarea>
+
+        <button class="cta" type="submit">Submit question</button>
+    </form>
+    </section>
+
+
       <div class="footer">
         <strong>{{ t.get("footer_app_l1","Nimue Gelato Artigianale • AI Studio") }}</strong><br>
         © 2026 Tutti i diritti riservati.<br>

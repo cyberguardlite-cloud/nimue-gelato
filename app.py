@@ -12,8 +12,9 @@ import io
 import re
 import os
 import stripe
-
-
+import sqlite3
+from datetime import datetime
+from flask import abort
 
 from gelato_engine import genera_ricetta_testo, get_substitutions
 
@@ -29,6 +30,47 @@ from flask import Flask, render_template, request, session, redirect, url_for
 
 
 app = Flask(__name__)
+DB_PATH = os.environ.get("BLOG_DB_PATH", "data/app.db")
+
+def db_conn():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def init_db():
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    conn = db_conn()
+    conn.executescript("""
+    CREATE TABLE IF NOT EXISTS blog_questions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      article_slug TEXT NOT NULL,
+      name TEXT,
+      question TEXT NOT NULL,
+      final_answer TEXT,
+      approved INTEGER NOT NULL DEFAULT 0,
+      rejected INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_blog_questions_slug ON blog_questions(article_slug);
+    CREATE INDEX IF NOT EXISTS idx_blog_questions_approved ON blog_questions(approved);
+    """)
+    conn.commit()
+    conn.close()
+
+def get_approved_questions(slug: str):
+    conn = db_conn()
+    rows = conn.execute("""
+        SELECT id, name, question, final_answer, created_at
+        FROM blog_questions
+        WHERE article_slug=? AND approved=1 AND rejected=0
+        ORDER BY id DESC
+        LIMIT 50
+    """, (slug,)).fetchall()
+    conn.close()
+    return rows
+
+init_db()
+
 app.secret_key = "CAMBIA_QUESTA_CHIAVE_CON_UNA_TUA"  # metti una stringa lunga e casuale
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 STRIPE_PRICE_ID = os.environ.get("STRIPE_PRICE_ID")
@@ -1043,12 +1085,89 @@ def blog_index():
     lang, t = get_lang()
     return render_template("blog/index.html", lang=lang, t=t)
 
-@app.route("/blog/why-homemade-ice-cream-turns-icy")
+@app.route("/blog/why-homemade-ice-cream-turns-icy", methods=["GET", "POST"])
 def blog_post_icy():
     lang, t = get_lang()
-    return render_template("blog/why-homemade-ice-cream-turns-icy.html", lang=lang, t=t)
+    slug = "why-homemade-ice-cream-turns-icy"
 
+    if request.method == "POST":
+        # honeypot anti-bot (campo nascosto nel form)
+        if (request.form.get("website") or "").strip():
+            return ("", 204)
 
+        name = (request.form.get("name") or "").strip()[:60]
+        question = (request.form.get("question") or "").strip()
+
+        if len(question) < 10:
+            return render_template(
+                "blog/why-homemade-ice-cream-turns-icy.html",
+                lang=lang, t=t,
+                questions=get_approved_questions(slug),
+                qna_error="Please write a more detailed question (min 10 characters)."
+            )
+
+        created_at = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+
+        conn = db_conn()
+        conn.execute("""
+            INSERT INTO blog_questions (article_slug, name, question, approved, rejected, created_at)
+            VALUES (?, ?, ?, 0, 0, ?)
+        """, (slug, name, question, created_at))
+        conn.commit()
+        conn.close()
+
+        return render_template(
+            "blog/why-homemade-ice-cream-turns-icy.html",
+            lang=lang, t=t,
+            questions=get_approved_questions(slug),
+            qna_success=True
+        )
+
+    return render_template(
+        "blog/why-homemade-ice-cream-turns-icy.html",
+        lang=lang, t=t,
+        questions=get_approved_questions(slug)
+    )
+
+def require_admin():
+    token = os.environ.get("BLOG_ADMIN_TOKEN", "")
+    got = request.args.get("token", "")
+    if not token or got != token:
+        abort(403)
+
+@app.route("/admin/blog-questions")
+def admin_blog_questions():
+    require_admin()
+    conn = db_conn()
+    rows = conn.execute("""
+        SELECT id, article_slug, name, question, final_answer, approved, rejected, created_at
+        FROM blog_questions
+        WHERE rejected=0
+        ORDER BY id DESC
+        LIMIT 200
+    """).fetchall()
+    conn.close()
+    return render_template("admin/blog_questions.html", rows=rows)
+
+@app.route("/admin/blog-questions/<int:q_id>/update", methods=["POST"])
+def admin_update_blog_question(q_id):
+    require_admin()
+    final_answer = (request.form.get("final_answer") or "").strip()
+    action = request.form.get("action")
+
+    approved = 1 if action == "approve" else 0
+    rejected = 1 if action == "reject" else 0
+
+    conn = db_conn()
+    conn.execute("""
+        UPDATE blog_questions
+        SET final_answer=?, approved=?, rejected=?
+        WHERE id=?
+    """, (final_answer, approved, rejected, q_id))
+    conn.commit()
+    conn.close()
+
+    return ("", 204)
 
 if __name__ == "__main__":
     app.run(debug=True)

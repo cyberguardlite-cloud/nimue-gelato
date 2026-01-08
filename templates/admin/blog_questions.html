@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Blog Q&A Admin</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:20px;background:#fff;}
+    .row{border:1px solid #eee;border-radius:12px;padding:12px;margin-bottom:12px;}
+    textarea{width:100%;min-height:120px;padding:10px;border-radius:10px;border:1px solid #ddd;}
+    .meta{color:#666;font-size:.9rem;margin-bottom:8px}
+    .btn{padding:10px 12px;border-radius:10px;border:1px solid #ddd;background:#f7f7f7;font-weight:700;cursor:pointer;margin-right:8px}
+    .btn.ok{background:#e9fff3;border-color:#b9f2d2}
+    .btn.no{background:#fff0f0;border-color:#ffd0d0}
+  </style>
+</head>
+<body>
+  <h1>Blog Q&A – Admin</h1>
+
+  {% for r in rows %}
+    <div class="row">
+      <div class="meta">
+        #{{ r["id"] }} • {{ r["article_slug"] }} • {{ r["created_at"] }}
+        {% if r["approved"] %} • ✅ APPROVED{% endif %}
+      </div>
+
+      <b>Question{% if r["name"] %} ({{ r["name"] }}){% endif %}:</b>
+      <div style="margin:6px 0 10px;">{{ r["question"] }}</div>
+
+      <form method="POST" action="/admin/blog-questions/{{ r['id'] }}/update?token={{ request.args.get('token','') }}">
+        <b>Final answer:</b>
+        <textarea name="final_answer">{{ r["final_answer"] or "" }}</textarea>
+        <div style="margin-top:10px;">
+          <button class="btn ok" name="action" value="approve" type="submit">Approve</button>
+          <button class="btn no" name="action" value="reject" type="submit">Reject</button>
+        </div>
+      </form>
+    </div>
+  {% endfor %}
+</body>
+</html>
