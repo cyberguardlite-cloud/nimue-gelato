@@ -200,8 +200,8 @@ TRANSLATIONS = {
         "landing_p": "Nimue AI Studio – Home Edition ti aiuta a costruire ricette chiare e ripetibili, con ingredienti semplici, procedimento passo-passo e PDF esportabile.",
         "landing_cta_primary": "Crea la tua ricetta",
         "landing_cta_secondary": "Come funziona",
-        "landing_note": "Nessun account. Paghi solo se vuoi il PDF completo (una tantum).",
-        "landing_payment_trust" : "Pagamento sicuro con Stripe",
+        "landing_try_note": "Inserisci un gusto e una quantità per generare una ricetta bilanciata.",
+
 
 
         "landing_for_who_title": "Per chi è",
@@ -291,8 +291,8 @@ TRANSLATIONS = {
         "landing_p": "Nimue AI Studio – Home Edition helps you create clear, repeatable recipes with simple ingredients, step-by-step instructions, and exportable PDFs.",
         "landing_cta_primary": "Create your recipe",
         "landing_cta_secondary": "How it works",
-        "landing_note": "No account. You only pay if you want the full PDF (one-time).",
-        "landing_payment_trust": "Secure payment with Stripe",
+        "landing_try_note": "Enter a flavor and a quantity to generate a balanced gelato recipe.",
+
 
         "landing_for_who_title": "Who it’s for",
         "landing_for_who_1_title": "Enthusiasts",
@@ -381,8 +381,8 @@ TRANSLATIONS = {
         "landing_p": "Nimue AI Studio – Edición Hogar te ayuda a crear recetas claras y repetibles, con ingredientes sencillos, pasos guiados y PDF exportable.",
         "landing_cta_primary": "Crea tu receta",
         "landing_cta_secondary": "Cómo funciona",
-        "landing_note": "Sin cuenta. Solo pagas si quieres el PDF completo (pago único).",
-        "landing_payment_trust": "Pago seguro con Stripe",
+        "landing_try_note": "Introduce un sabor y una cantidad para generar una receta de helado equilibrada.",
+
 
         "landing_for_who_title": "Para quién es",
         "landing_for_who_1_title": "Aficionados",
@@ -471,8 +471,8 @@ TRANSLATIONS = {
         "landing_p": "Nimue AI Studio – Édition Maison vous aide à créer des recettes claires et reproductibles, avec des ingrédients simples, un pas-à-pas et un PDF exportable.",
         "landing_cta_primary": "Créer ta recette",
         "landing_cta_secondary": "Comment ça marche",
-        "landing_note": "Aucun compte. Tu ne paies que si tu veux le PDF complet (paiement unique).",
-        "landing_payment_trust": "Paiement sécurisé avec Stripe",
+        "landing_try_note": "Entrez une saveur et une quantité pour générer une recette de glace équilibrée.",
+
 
         "landing_for_who_title": "Pour qui",
         "landing_for_who_1_title": "Passionnés",
@@ -561,8 +561,8 @@ TRANSLATIONS = {
         "landing_p": "Nimue AI Studio – Home Edition hilft dir, klare und reproduzierbare Rezepte zu erstellen – mit einfachen Zutaten, Schritt-für-Schritt-Anleitung und exportierbarem PDF.",
         "landing_cta_primary": "Rezept erstellen",
         "landing_cta_secondary": "So funktioniert’s",
-        "landing_note": "Kein Konto. Du zahlst nur, wenn du das vollständige PDF willst (einmalig).",
-        "landing_payment_trust": "Sichere Zahlung mit Stripe",
+        "landing_try_note": "Gib eine Sorte und eine Menge ein, um ein ausgewogenes Gelato-Rezept zu erstellen.",
+
 
 
         "landing_for_who_title": "Für wen",

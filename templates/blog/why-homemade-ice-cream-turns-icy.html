@@ -229,8 +229,22 @@
         style="width:100%;min-height:110px;padding:10px 12px;border-radius:14px;border:1px solid #ddd;margin-bottom:10px;"></textarea>
 
         <button class="cta" type="submit">Submit question</button>
-    </form>
-    </section>
+            </form>
+            </section>
+
+            {% if questions %}
+        <section class="blog-qna">
+        <h2>Questions & Answers</h2>
+
+        {% for q in questions %}
+            <div class="qna-item">
+            <p class="q"><strong>Q:</strong> {{ q["question"] }}</p>
+            <p class="a"><strong>A:</strong> {{ q["final_answer"] }}</p>
+            </div>
+        {% endfor %}
+        </section>
+        {% endif %}
+
 
 
       <div class="footer">

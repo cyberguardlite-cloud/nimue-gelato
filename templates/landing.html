@@ -135,7 +135,85 @@
       .topbar{align-items:flex-start}
       .tools{width:100%;justify-content:flex-start}
     }
-  </style>
+
+    .seo-collapsible{
+      max-width:900px;
+      margin:46px auto 10px;
+      padding:0 16px;
+      color:#666;
+      font-size:.92rem;
+      line-height:1.65;
+    }
+
+    .seo-collapsible h2{
+      font-size:1.10rem;
+      margin:0 0 10px;
+      color:#333;
+      font-weight:950;
+    }
+
+    .seo-intro{
+      margin:0 0 12px;
+      color:#777;
+    }
+
+    .seo-details{
+      border:1px solid rgba(0,0,0,.08);
+      background:rgba(255,255,255,.65);
+      border-radius:16px;
+      padding:8px 12px;
+    }
+
+    .seo-summary{
+      cursor:pointer;
+      list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      font-weight:900;
+      color:#b45717;
+      padding:8px 4px;
+      user-select:none;
+    }
+
+    .seo-details summary::-webkit-details-marker{ display:none; }
+
+    .seo-summary-icon{
+      transition: transform .18s ease;
+    }
+
+    .seo-details[open] .seo-summary-icon{
+      transform: rotate(180deg);
+    }
+
+    .seo-body{
+      padding:10px 4px 6px;
+    }
+
+    .seo-body p{
+      margin:0 0 10px;
+    }
+
+    .seo-subtitle{
+      margin:14px 0 6px;
+      font-size:1.0rem;
+      font-weight:950;
+      color:#333;
+    }
+
+    .seo-link{
+      font-weight:950;
+      color:#0f7a5c;
+      text-decoration:none;
+    }
+
+    .seo-link:hover{
+      text-decoration:underline;
+    }
+
+
+      </style>
 </head>
 
 <body>
@@ -176,14 +254,16 @@
             <h1>{{ t.get("landing_h1","") }}</h1>
             <p class="lead">{{ t.get("landing_p","") }}</p>
 
+            <div class="note">
+              {{ t.get("landing_try_note", "Inserisci un gusto e una quantità per generare una ricetta bilanciata.") }}
+            </div>
+
             <div class="cta-row">
               <a class="cta" href="{{ url_for('app_page', lang=lang) }}">{{ t.get("landing_cta_primary","") }}</a>
               <a class="cta-secondary" href="#how">{{ t.get("landing_cta_secondary","") }}</a>
             </div>
+            </div>  <!-- chiude la colonna SINISTRA -->
 
-            <div class="note">{{ t.get("landing_note","") }}</div>
-            <div class="note">🔒 {{ t.get("landing_payment_trust","Pagamento sicuro con Stripe") }}</div>
-          </div>
           
 
           <div class="side">
@@ -249,35 +329,37 @@
           <a class="cta" href="{{ url_for('app_page', lang=lang) }}">{{ t.get("landing_cta_primary","") }}</a>
         </div>
       </div>
-      <section style="max-width:900px;margin:60px auto;padding:0 16px;">
-  <h1>Make creamy ice cream at home without guesswork</h1>
+      <section class="seo-collapsible" aria-labelledby="seo-title">
+        <h2 id="seo-title">{{ t.get("seo_h2","Make creamy ice cream at home without guesswork") }}</h2>
 
-  <p>
-    Making ice cream at home can be frustrating.
-    The same recipe may work once and fail the next time:
-    icy texture, ice crystals, or ice cream that freezes too hard.
-  </p>
+        <p class="seo-intro">
+          {{ t.get("seo_intro","A short explanation of why homemade ice cream often fails — and how Nimue adapts recipes to home conditions.") }}
+        </p>
 
-  <p>
-    This usually happens because home kitchens have very different conditions
-    compared to professional labs. Freezers are colder, temperatures fluctuate,
-    and batch sizes are smaller.
-  </p>
+        <details class="seo-details">
+          <summary class="seo-summary">
+            <span class="seo-summary-text">{{ t.get("seo_read_more","Read more") }}</span>
+            <span class="seo-summary-icon" aria-hidden="true">▾</span>
+          </summary>
 
-  <p>
-    Nimue AI Studio helps home ice cream makers get more consistent results
-    by generating recipes adapted to home conditions.
-    You choose the flavor and the quantity, and the recipe is adjusted
-    to work with typical home equipment.
-  </p>
+          <div class="seo-body">
+            <p>{{ t.get("seo_p1","Making ice cream at home can be frustrating. The same recipe may work once and fail the next time: icy texture, ice crystals, or ice cream that freezes too hard.") }}</p>
 
-  <p>
-    By focusing on realistic home constraints, the goal is to reduce guesswork
-    and make ice cream that is smoother, more stable, and easier to scoop.
-  </p>
+            <p>{{ t.get("seo_p2","This usually happens because home kitchens have very different conditions compared to professional labs. Freezers are colder, temperatures fluctuate, and batch sizes are smaller.") }}</p>
 
-  <h2>Generate a recipe adapted to home ice cream making</h2>
-</section>
+            <p>{{ t.get("seo_p3","Nimue AI Studio helps home ice cream makers get more consistent results by generating recipes adapted to home conditions. You choose the flavor and the quantity, and the recipe is adjusted to work with typical home equipment.") }}</p>
+
+            <p>{{ t.get("seo_p4","By focusing on realistic home constraints, the goal is to reduce guesswork and make ice cream that is smoother, more stable, and easier to scoop.") }}</p>
+
+            <h3 class="seo-subtitle">{{ t.get("seo_h3","Generate a recipe adapted to home ice cream making") }}</h3>
+            <p class="seo-cta">
+              <a class="seo-link" href="{{ url_for('app_page', lang=lang) }}">{{ t.get("seo_cta","Try it now →") }}</a>
+            </p>
+          </div>
+        </details>
+      </section>
+
+
 
       <div class="footer">
         <strong>{{ t.get("footer_app_l1","") }}</strong><br>
